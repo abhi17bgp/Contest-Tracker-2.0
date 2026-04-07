@@ -32,7 +32,7 @@ const Login = () => {
             {/* Mobile Top Banner — visible only on small screens */}
             <div className="lg:hidden bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-6 py-6 flex flex-col items-center text-center">
                 <div className="flex items-center mb-2">
-                    <Trophy className="w-8 h-8 text-yellow-300 mr-2" />
+                    <Trophy className="w-11 h-11 text-yellow-300 mr-2" />
                     <span className="text-xl font-extrabold tracking-tight">Contest Tracker</span>
                 </div>
                 <p className="text-blue-100 text-sm leading-relaxed max-w-xs">
@@ -48,7 +48,7 @@ const Login = () => {
 
                 <div className="relative z-10 max-w-lg">
                     <div className="flex items-center ">
-                        <Trophy className="w-16 h-16 text-blue-300 mb-6 mr-2 drop-shadow-lg" />
+                        <Trophy className="w-20 h-20 text-blue-300 mb-6 mr-2 drop-shadow-lg" />
                         <h1 className="text-5xl font-extrabold mb-6 leading-tight tracking-tight">Contest Tracker</h1>
                     </div>
                     <h1 className="text-5xl font-extrabold mb-6 leading-tight tracking-tight">Master Your<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">Coding Journey</span></h1>
@@ -92,7 +92,7 @@ const Login = () => {
             <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-8 lg:p-8 bg-gray-50">
                 <div className="w-full max-w-md bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
                     <div className="hidden lg:flex justify-center items-center mb-8">
-                        <Trophy className="w-12 h-12 text-blue-600 mr-3" />
+                        <Trophy className="w-16 h-16 text-blue-600 mr-3" />
                         <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">Welcome Back</h2>
                     </div>
                     <h2 className="lg:hidden text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight text-center mb-6">Welcome Back</h2>

@@ -68,7 +68,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center">
-          <Trophy className="w-7 h-7 sm:w-8 sm:h-8 mr-2 text-yellow-300 flex-shrink-0" />
+          <Trophy className="w-9 h-9 sm:w-11 sm:h-11 mr-2 text-yellow-300 flex-shrink-0" />
           <h1 className="text-lg sm:text-2xl font-bold tracking-tight">Contest Tracker</h1>
         </div>
         
