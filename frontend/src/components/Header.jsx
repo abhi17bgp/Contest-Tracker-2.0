@@ -1,0 +1,255 @@
+import React, { useContext, useState } from 'react';
+import { Trophy, LogOut, Trash2, AlertTriangle, X, Settings, User, ChevronDown, AlignLeft } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
+const Header = () => {
+  const { user, setUser, logout, API_URL } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [profileData, setProfileData] = useState({ 
+    name: user?.name || '', 
+    bio: user?.bio || '' 
+  });
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/auth/delete-account`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Account deleted successfully.");
+      setIsModalOpen(false);
+      logout();
+      navigate('/login');
+    } catch (err) {
+      toast.error("Failed to delete account");
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.put(`${API_URL}/auth/profile`, profileData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.data.success) {
+        toast.success("Profile updated successfully!");
+        setUser(res.data.user);
+        setIsEditModalOpen(false);
+        setIsSettingsOpen(false);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md relative">
+      <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+        <div className="flex items-center mb-4 md:mb-0">
+          <Trophy className="w-8 h-8 mr-2 text-yellow-300" />
+          <h1 className="text-2xl font-bold tracking-tight">Contest Tracker</h1>
+        </div>
+        
+        {user && (
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <button
+                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                className="flex items-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg pl-4 pr-3 py-2 transition-all duration-200 text-sm font-medium group"
+              >
+                <span className="flex items-center mr-2">
+                  <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                  Hi, {user.name || user.email.split('@')[0]}
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSettingsOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isSettingsOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsSettingsOpen(false)}></div>
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 overflow-hidden transform transition-all animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Settings</p>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        setProfileData({ name: user.name, bio: user.bio || '' });
+                        setIsEditModalOpen(true);
+                        setIsSettingsOpen(false);
+                      }}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    >
+                      <User className="w-4 h-4 mr-3 text-blue-500" />
+                      Edit Profile
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsModalOpen(true);
+                        setIsSettingsOpen(false);
+                      }}
+                      className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                    >
+                      <Trash2 className="w-4 h-4 mr-3" />
+                      Delete Account
+                    </button>
+
+                    <div className="border-t border-gray-100 mt-1 pt-1">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 mr-3" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onClick={() => setIsEditModalOpen(false)}></div>
+          <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-in zoom-in duration-200">
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Edit Profile</h3>
+                  <p className="text-gray-500 text-sm">Personalize your public profile</p>
+                </div>
+                <button 
+                  onClick={() => setIsEditModalOpen(false)} 
+                  className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdateProfile} className="space-y-6">
+                <div>
+                  <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Display Name</label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <User className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="text"
+                      value={profileData.name}
+                      onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                      required
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                      placeholder="Your name"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1 flex justify-between">
+                    Bio <span className="text-gray-400 font-normal normal-case italic">(Optional)</span>
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-4 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <AlignLeft className="w-5 h-5" />
+                    </div>
+                    <textarea
+                      value={profileData.bio}
+                      onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                      rows="4"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all resize-none font-medium text-gray-900"
+                      placeholder="Tell the community a bit about yourself..."
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-2xl transition-all active:scale-95"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                  >
+                    {isSaving ? 'Saving...' : 'Save Profile'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modern Deletion Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+            onClick={() => setIsModalOpen(false)}
+          ></div>
+          
+          <div className="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all animate-in zoom-in duration-200">
+            <div className="p-8">
+              <div className="flex items-center justify-center w-20 h-20 mx-auto bg-red-100 rounded-full mb-6">
+                <AlertTriangle className="w-10 h-10 text-red-600" />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-center text-gray-900 mb-2">
+                Delete Account?
+              </h3>
+              
+              <p className="text-gray-500 text-center text-sm leading-relaxed mb-8">
+                This action is permanent and will remove all your data. Are you sure you want to proceed?
+              </p>
+              
+              <div className="flex flex-col space-y-3">
+                <button
+                  onClick={confirmDelete}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
+                >
+                  Yes, delete my account
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-2xl transition-all active:scale-95"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+};
+
+export default Header;

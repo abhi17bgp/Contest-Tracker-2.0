@@ -1,0 +1,128 @@
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { AuthContext } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
+import { Trophy, LogIn, Code, Bell, LineChart } from 'lucide-react';
+
+const Login = () => {
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const { login, API_URL } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const onSubmit = async e => {
+        e.preventDefault();
+        try {
+            const res = await axios.post(`${API_URL}/auth/login`, formData);
+            login(res.data.user, res.data.token);
+            toast.success('Successfully logged in');
+            navigate('/');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Login failed');
+        }
+    };
+
+    return (
+        <div className="flex min-h-screen bg-gray-50 flex-col-reverse lg:flex-row">
+            {/* Left Side: About Website */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white flex-col justify-center items-center px-12 relative overflow-hidden">
+                {/* Decorative background elements */}
+                <div className="absolute top-0 right-0 -trate-y-12 translate-x-12 w-96 h-96 bg-blue-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-96 h-96 bg-indigo-500 opacity-30 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="relative z-10 max-w-lg">
+                    <div className="flex items-center ">
+                        <Trophy className="w-16 h-16 text-blue-300 mb-6 mr-2 drop-shadow-lg" />
+                        <h1 className="text-5xl font-extrabold mb-6 leading-tight tracking-tight">Contest Tracker</h1>
+                    </div>
+                    <h1 className="text-5xl font-extrabold mb-6 leading-tight tracking-tight">Master Your<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">Coding Journey</span></h1>
+                    <p className="text-lg text-blue-100 mb-10 leading-relaxed font-medium">
+                        Contest Tracker is your ultimate companion to keep track of programming competitions across platforms. Never miss an important event again.
+                    </p>
+
+                    <div className="space-y-8">
+                        <div className="flex items-start group">
+                            <div className="bg-blue-600/40 p-4 rounded-xl mr-5 backdrop-blur-sm border border-blue-500/30 group-hover:bg-blue-500/50 transition-colors">
+                                <Code className="w-7 h-7 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold mb-2 text-white">Multiple Platforms</h3>
+                                <p className="text-blue-100/80 leading-relaxed">Track Codeforces, LeetCode, CodeChef, and GeeksforGeeks all in one unified, beautiful dashboard.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start group">
+                            <div className="bg-blue-600/40 p-4 rounded-xl mr-5 backdrop-blur-sm border border-blue-500/30 group-hover:bg-blue-500/50 transition-colors">
+                                <Bell className="w-7 h-7 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold mb-2 text-white">Smart Reminders</h3>
+                                <p className="text-blue-100/80 leading-relaxed">Save contests directly to your calendar or set up email reminders so you're always prepared to compete.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start group">
+                            <div className="bg-blue-600/40 p-4 rounded-xl mr-5 backdrop-blur-sm border border-blue-500/30 group-hover:bg-blue-500/50 transition-colors">
+                                <LineChart className="w-7 h-7 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold mb-2 text-white">Unified Dashboard</h3>
+                                <p className="text-blue-100/80 leading-relaxed">View all major competitive programming contests in one place, sorted by time and filtered by platform for your convenience.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Side: Login Form */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+                <div className="w-full max-w-md bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+                    <div className="flex justify-center items-center mb-8">
+                        <Trophy className="w-12 h-12 text-blue-600 mr-3" />
+                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">Welcome Back</h2>
+                    </div>
+                    <form onSubmit={onSubmit} className="space-y-5">
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={onChange}
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                placeholder="Enter your email"
+                            />
+                        </div>
+                        <div>
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="block text-gray-700 text-sm font-bold">Password</label>
+                                <Link to="/forgot-password" className="text-sm text-blue-600 font-medium hover:text-blue-800 transition-colors">Forgot Password?</Link>
+                            </div>
+                            <p className="text-[10px] text-gray-400 mb-2 font-medium">✨ At least 6 characters long</p>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={onChange}
+                                required
+                                minLength="6"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                placeholder="Enter your password"
+                            />
+                        </div>
+                        <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center shadow-lg shadow-blue-600/30">
+                            <LogIn className="w-5 h-5 mr-2" />
+                            Log In
+                        </button>
+                    </form>
+                    <div className="mt-8 pt-6 border-t border-gray-100 text-center text-gray-600">
+                        <p>Don't have an account? <Link to="/register" className="text-blue-600 font-bold hover:underline">Register</Link></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Login;
