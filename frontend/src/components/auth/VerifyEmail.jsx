@@ -29,8 +29,8 @@ const VerifyEmail = () => {
     }, [token, API_URL]);
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-50">
-            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md text-center">
+        <div className="flex justify-center items-start sm:items-center min-h-screen bg-gray-50 py-8 px-4">
+            <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-md text-center my-auto">
                 {status === 'verifying' && (
                     <div>
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>

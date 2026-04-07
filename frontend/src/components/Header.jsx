@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Trophy, LogOut, Trash2, AlertTriangle, X, Settings, User, ChevronDown, AlignLeft } from 'lucide-react';
+import { Trophy, LogOut, Trash2, AlertTriangle, X, User, ChevronDown, AlignLeft, Menu } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -11,6 +11,7 @@ const Header = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [profileData, setProfileData] = useState({ 
     name: user?.name || '', 
@@ -52,6 +53,7 @@ const Header = () => {
         setUser(res.data.user);
         setIsEditModalOpen(false);
         setIsSettingsOpen(false);
+        setIsMobileMenuOpen(false);
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update profile");
@@ -62,84 +64,139 @@ const Header = () => {
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md relative">
-      <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
-        <div className="flex items-center mb-4 md:mb-0">
-          <Trophy className="w-8 h-8 mr-2 text-yellow-300" />
-          <h1 className="text-2xl font-bold tracking-tight">Contest Tracker</h1>
+      {/* Main Header Row — always single row */}
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        {/* Logo */}
+        <div className="flex items-center">
+          <Trophy className="w-7 h-7 sm:w-8 sm:h-8 mr-2 text-yellow-300 flex-shrink-0" />
+          <h1 className="text-lg sm:text-2xl font-bold tracking-tight">Contest Tracker</h1>
         </div>
         
         {user && (
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <button
-                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                className="flex items-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg pl-4 pr-3 py-2 transition-all duration-200 text-sm font-medium group"
-              >
-                <span className="flex items-center mr-2">
-                  <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-                  Hi, {user.name || user.email.split('@')[0]}
-                </span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSettingsOpen ? 'rotate-180' : ''}`} />
-              </button>
+          <>
+            {/* Desktop: User Dropdown */}
+            <div className="hidden sm:flex items-center space-x-4">
+              <div className="relative">
+                <button
+                  onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                  className="flex items-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg pl-4 pr-3 py-2 transition-all duration-200 text-sm font-medium"
+                >
+                  <span className="flex items-center mr-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                    Hi, {user.name || user.email.split('@')[0]}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSettingsOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-              {/* Dropdown Menu */}
-              {isSettingsOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsSettingsOpen(false)}></div>
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 overflow-hidden transform transition-all animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Settings</p>
-                    </div>
-                    
-                    <button
-                      onClick={() => {
-                        setProfileData({ name: user.name, bio: user.bio || '' });
-                        setIsEditModalOpen(true);
-                        setIsSettingsOpen(false);
-                      }}
-                      className="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                    >
-                      <User className="w-4 h-4 mr-3 text-blue-500" />
-                      Edit Profile
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsModalOpen(true);
-                        setIsSettingsOpen(false);
-                      }}
-                      className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
-                    >
-                      <Trash2 className="w-4 h-4 mr-3" />
-                      Delete Account
-                    </button>
-
-                    <div className="border-t border-gray-100 mt-1 pt-1">
+                {isSettingsOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsSettingsOpen(false)}></div>
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 overflow-hidden">
+                      <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Settings</p>
+                      </div>
+                      
                       <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                        onClick={() => {
+                          setProfileData({ name: user.name, bio: user.bio || '' });
+                          setIsEditModalOpen(true);
+                          setIsSettingsOpen(false);
+                        }}
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                       >
-                        <LogOut className="w-4 h-4 mr-3" />
-                        Sign Out
+                        <User className="w-4 h-4 mr-3 text-blue-500" />
+                        Edit Profile
                       </button>
+
+                      <button
+                        onClick={() => {
+                          setIsModalOpen(true);
+                          setIsSettingsOpen(false);
+                        }}
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                      >
+                        <Trash2 className="w-4 h-4 mr-3" />
+                        Delete Account
+                      </button>
+
+                      <div className="border-t border-gray-100 mt-1 pt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4 mr-3" />
+                          Sign Out
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+
+            {/* Mobile: Hamburger Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="sm:hidden flex items-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg p-2 transition-all"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </>
         )}
       </div>
+
+      {/* Mobile Slide-Down Menu */}
+      {isMobileMenuOpen && user && (
+        <div className="sm:hidden border-t border-white/20 bg-indigo-800/60 backdrop-blur-sm">
+          <div className="px-4 py-3 border-b border-white/10">
+            <div className="flex items-center">
+              <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+              <span className="text-sm font-semibold truncate">{user.name || user.email}</span>
+            </div>
+          </div>
+          <div className="py-1">
+            <button
+              onClick={() => {
+                setProfileData({ name: user.name, bio: user.bio || '' });
+                setIsEditModalOpen(true);
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center px-4 py-3 text-sm text-white/90 hover:bg-white/10 transition-colors"
+            >
+              <User className="w-4 h-4 mr-3 text-blue-200" />
+              Edit Profile
+            </button>
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center px-4 py-3 text-sm text-red-300 hover:bg-white/10 transition-colors"
+            >
+              <Trash2 className="w-4 h-4 mr-3" />
+              Delete Account
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-4 py-3 text-sm text-white/80 hover:bg-white/10 transition-colors"
+            >
+              <LogOut className="w-4 h-4 mr-3 text-blue-200" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onClick={() => setIsEditModalOpen(false)}></div>
-          <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-in zoom-in duration-200">
-            <div className="p-8">
-              <div className="flex justify-between items-center mb-8">
+          <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="p-6 sm:p-8">
+              <div className="flex justify-between items-center mb-6 sm:mb-8">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Edit Profile</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Profile</h3>
                   <p className="text-gray-500 text-sm">Personalize your public profile</p>
                 </div>
                 <button 
@@ -150,7 +207,7 @@ const Header = () => {
                 </button>
               </div>
 
-              <form onSubmit={handleUpdateProfile} className="space-y-6">
+              <form onSubmit={handleUpdateProfile} className="space-y-5">
                 <div>
                   <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Display Name</label>
                   <div className="relative group">
@@ -186,18 +243,18 @@ const Header = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 grid grid-cols-2 gap-4">
+                <div className="pt-4 grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setIsEditModalOpen(false)}
-                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-2xl transition-all active:scale-95"
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 sm:py-4 rounded-2xl transition-all active:scale-95"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                   >
                     {isSaving ? 'Saving...' : 'Save Profile'}
                   </button>
@@ -208,7 +265,7 @@ const Header = () => {
         </div>
       )}
 
-      {/* Modern Deletion Modal */}
+      {/* Delete Account Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div 
@@ -216,30 +273,30 @@ const Header = () => {
             onClick={() => setIsModalOpen(false)}
           ></div>
           
-          <div className="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all animate-in zoom-in duration-200">
-            <div className="p-8">
-              <div className="flex items-center justify-center w-20 h-20 mx-auto bg-red-100 rounded-full mb-6">
-                <AlertTriangle className="w-10 h-10 text-red-600" />
+          <div className="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden">
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-red-100 rounded-full mb-5 sm:mb-6">
+                <AlertTriangle className="w-8 h-8 sm:w-10 sm:h-10 text-red-600" />
               </div>
               
-              <h3 className="text-2xl font-bold text-center text-gray-900 mb-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-2">
                 Delete Account?
               </h3>
               
-              <p className="text-gray-500 text-center text-sm leading-relaxed mb-8">
+              <p className="text-gray-500 text-center text-sm leading-relaxed mb-6 sm:mb-8">
                 This action is permanent and will remove all your data. Are you sure you want to proceed?
               </p>
               
               <div className="flex flex-col space-y-3">
                 <button
                   onClick={confirmDelete}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 sm:py-4 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
                 >
                   Yes, delete my account
                 </button>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-4 rounded-2xl transition-all active:scale-95"
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 sm:py-4 rounded-2xl transition-all active:scale-95"
                 >
                   Cancel
                 </button>

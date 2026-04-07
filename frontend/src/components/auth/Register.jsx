@@ -34,11 +34,11 @@ const Register = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-50">
-            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-                <div className="flex justify-center items-center mb-6">
-                    <Trophy className="w-10 h-10 text-blue-600 mr-2" />
-                    <h2 className="text-3xl font-bold text-gray-800">Join Contest Tracker</h2>
+        <div className="flex justify-center items-start sm:items-center min-h-screen bg-gray-50 py-8 px-4">
+            <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-md my-auto">
+                <div className="flex justify-center items-center mb-5">
+                    <Trophy className="w-9 h-9 text-blue-600 mr-2" />
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Join Contest Tracker</h2>
                 </div>
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div>

@@ -25,8 +25,19 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen bg-gray-50 flex-col-reverse lg:flex-row">
-            {/* Left Side: About Website */}
+        <div className="flex min-h-screen bg-gray-50 flex-col lg:flex-row">
+            {/* Mobile Top Banner — visible only on small screens */}
+            <div className="lg:hidden bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-6 py-6 flex flex-col items-center text-center">
+                <div className="flex items-center mb-2">
+                    <Trophy className="w-8 h-8 text-yellow-300 mr-2" />
+                    <span className="text-xl font-extrabold tracking-tight">Contest Tracker</span>
+                </div>
+                <p className="text-blue-100 text-sm leading-relaxed max-w-xs">
+                    Track contests across Codeforces, LeetCode, CodeChef &amp; more — all in one place.
+                </p>
+            </div>
+
+            {/* Left Side: About Website — Desktop only */}
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white flex-col justify-center items-center px-12 relative overflow-hidden">
                 {/* Decorative background elements */}
                 <div className="absolute top-0 right-0 -trate-y-12 translate-x-12 w-96 h-96 bg-blue-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
@@ -75,12 +86,13 @@ const Login = () => {
             </div>
 
             {/* Right Side: Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
-                <div className="w-full max-w-md bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
-                    <div className="flex justify-center items-center mb-8">
+            <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-8 lg:p-8 bg-gray-50">
+                <div className="w-full max-w-md bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
+                    <div className="hidden lg:flex justify-center items-center mb-8">
                         <Trophy className="w-12 h-12 text-blue-600 mr-3" />
                         <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">Welcome Back</h2>
                     </div>
+                    <h2 className="lg:hidden text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight text-center mb-6">Welcome Back</h2>
                     <form onSubmit={onSubmit} className="space-y-5">
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
