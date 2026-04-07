@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -7,8 +7,11 @@ import { Trophy, LogIn, Code, Bell, LineChart } from 'lucide-react';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
-    const { login, API_URL } = useContext(AuthContext);
+    const { login, API_URL, user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    // If already logged in (e.g. another tab logged in and BroadcastChannel updated state)
+    if (user) return <Navigate to="/" replace />;
 
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 

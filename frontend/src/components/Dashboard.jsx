@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { Calendar, Clock, ExternalLink, Activity, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { toast } from 'react-toastify';
 import Header from './Header';
 
 const Dashboard = () => {
@@ -12,6 +13,9 @@ const Dashboard = () => {
     const [error, setError] = useState(null);
     const [showEnded, setShowEnded] = useState(false);            // Collapsed by default
     const { API_URL, user } = useContext(AuthContext);
+
+    // Track previous isVerified value to detect the false → true transition
+    const prevIsVerifiedRef = useRef(null);
 
     useEffect(() => {
         const fetchContests = async () => {
@@ -58,6 +62,21 @@ const Dashboard = () => {
 
         fetchContests();
     }, [API_URL]);
+
+    // ── Show toast when email gets verified (cross-tab or same-tab) ────────
+    useEffect(() => {
+        if (loading || user === null) return;
+
+        // Only fire when isVerified transitions from false → true,
+        // NOT on initial mount when user may already be verified.
+        if (prevIsVerifiedRef.current === false && user.isVerified === true) {
+            toast.success(
+                '🎉 Email verified! You will now receive contest reminders 5 minutes before they start.',
+                { autoClose: 6000 }
+            );
+        }
+        prevIsVerifiedRef.current = user.isVerified;
+    }, [user?.isVerified, loading, user]);
 
     const getPlatformColor = (platform) => {
         const p = platform.toLowerCase();
