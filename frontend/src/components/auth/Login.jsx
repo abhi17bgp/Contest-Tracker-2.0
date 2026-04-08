@@ -3,10 +3,11 @@ import { Link, useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { Trophy, LogIn, Code, Bell, LineChart } from 'lucide-react';
+import { Trophy, LogIn, Code, Bell, LineChart, Loader2 } from 'lucide-react';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [isLoading, setIsLoading] = useState(false);
     const { login, API_URL, user } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -17,6 +18,7 @@ const Login = () => {
 
     const onSubmit = async e => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const res = await axios.post(`${API_URL}/auth/login`, formData);
             login(res.data.user, res.data.token);
@@ -24,6 +26,8 @@ const Login = () => {
             navigate('/');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Login failed');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -31,13 +35,17 @@ const Login = () => {
         <div className="flex min-h-screen bg-gray-50 flex-col lg:flex-row">
             {/* Mobile Top Banner — visible only on small screens */}
             <div className="lg:hidden bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-6 py-6 flex flex-col items-center text-center">
-                <div className="flex items-center mb-2">
+                <div className="flex items-center mb-3">
                     <Trophy className="w-11 h-11 text-yellow-300 mr-2" />
                     <span className="text-xl font-extrabold tracking-tight">Contest Tracker</span>
                 </div>
-                <p className="text-blue-100 text-sm leading-relaxed max-w-xs">
+                <p className="text-blue-100 text-sm leading-relaxed max-w-xs mb-3">
                     Track contests across Codeforces, LeetCode, CodeChef &amp; more — all in one place.
                 </p>
+                <div className="bg-blue-600/30 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-400/30 flex items-center">
+                    <Bell className="w-3 h-3 mr-2 text-yellow-300 animate-pulse" />
+                    Automated Email Reminders
+                </div>
             </div>
 
             {/* Left Side: About Website — Desktop only */}
@@ -72,7 +80,7 @@ const Login = () => {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold mb-2 text-white">Smart Reminders</h3>
-                                <p className="text-blue-100/80 leading-relaxed">Save contests directly to your calendar or set up email reminders so you're always prepared to compete.</p>
+                                <p className="text-blue-100/80 leading-relaxed">Stay ahead with automated email reminders sent **1 hour before** every contest. Never miss a challenge again.</p>
                             </div>
                         </div>
                         <div className="flex items-start group">
@@ -126,9 +134,22 @@ const Login = () => {
                                 placeholder="Enter your password"
                             />
                         </div>
-                        <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center shadow-lg shadow-blue-600/30">
-                            <LogIn className="w-5 h-5 mr-2" />
-                            Log In
+                        <button 
+                            type="submit" 
+                            disabled={isLoading}
+                            className={`w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center shadow-lg shadow-blue-600/30 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    Signing in...
+                                </>
+                            ) : (
+                                <>
+                                    <LogIn className="w-5 h-5 mr-2" />
+                                    Log In
+                                </>
+                            )}
                         </button>
                     </form>
                     <div className="mt-8 pt-6 border-t border-gray-100 text-center text-gray-600">

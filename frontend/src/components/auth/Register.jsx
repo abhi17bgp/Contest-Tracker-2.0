@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { Trophy, UserPlus } from 'lucide-react';
+import { Trophy, UserPlus, Loader2 } from 'lucide-react';
 
 const Register = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+    const [isLoading, setIsLoading] = useState(false);
     const { API_URL } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -20,6 +21,8 @@ const Register = () => {
         if (formData.password.length < 6) {
             return toast.error("Password must be at least 6 characters long");
         }
+        
+        setIsLoading(true);
         try {
             await axios.post(`${API_URL}/auth/register`, {
                 name: formData.name,
@@ -30,6 +33,8 @@ const Register = () => {
             navigate('/login');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Registration failed');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -91,9 +96,22 @@ const Register = () => {
                             placeholder="Confirm your password"
                         />
                     </div>
-                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition flex justify-center items-center">
-                        <UserPlus className="w-5 h-5 mr-2" />
-                        Register
+                    <button 
+                        type="submit" 
+                        disabled={isLoading}
+                        className={`w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition flex justify-center items-center shadow-lg shadow-blue-600/20 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                Creating account...
+                            </>
+                        ) : (
+                            <>
+                                <UserPlus className="w-5 h-5 mr-2" />
+                                Register
+                            </>
+                        )}
                     </button>
                 </form>
                 <div className="mt-4 text-center text-sm">

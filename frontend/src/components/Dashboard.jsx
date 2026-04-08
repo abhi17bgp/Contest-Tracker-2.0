@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Calendar, Clock, ExternalLink, Activity, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, ExternalLink, Activity, ChevronDown, CheckCircle2, Bell } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Header from './Header';
 
@@ -71,7 +71,7 @@ const Dashboard = () => {
         // NOT on initial mount when user may already be verified.
         if (prevIsVerifiedRef.current === false && user.isVerified === true) {
             toast.success(
-                '🎉 Email verified! You will now receive contest reminders 5 minutes before they start.',
+                '🎉 Email verified! You will now receive automated contest reminders 1 hour before they start.',
                 { autoClose: 6000 }
             );
         }
@@ -211,10 +211,29 @@ const Dashboard = () => {
             <Header />
 
             <main className="container mx-auto px-3 sm:px-4 py-5 sm:py-8">
-                {!user?.isVerified && (
-                    <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 sm:p-4 mb-5 sm:mb-8 rounded shadow-sm" role="alert">
-                        <p className="font-bold text-sm sm:text-base">Email Unverified</p>
-                        <p className="text-sm leading-snug mt-1">Verify your email to receive automated 5-minute contest reminders. Check your inbox (or spam) for the link.</p>
+                {!user?.isVerified ? (
+                    <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 rounded-2xl shadow-sm flex items-start" role="alert">
+                        <div className="bg-amber-100 p-2 rounded-xl mr-4 flex-shrink-0">
+                            <Bell className="w-6 h-6 text-amber-600" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-amber-900 text-base sm:text-lg tracking-tight">Email Verification Required</h3>
+                            <p className="text-amber-700 text-sm sm:text-base mt-1 leading-relaxed">
+                                Please verify your email to activate **automated 1-hour contest reminders**. Check your inbox (or spam) for the verification link.
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 mb-8 rounded-2xl shadow-sm flex items-start" role="alert">
+                        <div className="bg-emerald-100 p-2 rounded-xl mr-4 flex-shrink-0">
+                            <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-emerald-900 text-base sm:text-lg tracking-tight">Notifications Active</h3>
+                            <p className="text-emerald-700 text-sm sm:text-base mt-1 leading-relaxed">
+                                You are all set! You will receive automated emails **1 hour before** any contest starts. Good luck with your coding!
+                            </p>
+                        </div>
                     </div>
                 )}
 
@@ -250,7 +269,7 @@ const Dashboard = () => {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                 {activeContests.map(c => renderContestCard(c))}
                             </div>
                         )}
@@ -281,7 +300,7 @@ const Dashboard = () => {
                         {/* Collapsible Content */}
                         {showEnded && (
                             <div className="px-3 sm:px-6 pb-3 sm:pb-6 border-t border-gray-100 pt-4">
-                                <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                     {endedContests.map(c => renderContestCard(c, true))}
                                 </div>
                             </div>
@@ -302,7 +321,7 @@ const Dashboard = () => {
                             </span>
                         </div>
                         <div className="p-3 sm:p-6">
-                            <div className="grid gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                 {upcomingContests.map(c => renderContestCard(c))}
                             </div>
                         </div>
