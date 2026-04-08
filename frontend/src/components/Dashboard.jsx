@@ -196,11 +196,10 @@ const Dashboard = () => {
                     href={isCompleted ? undefined : contest.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`mt-auto block w-full text-center font-black py-3 sm:py-4 rounded-xl transition-all flex justify-center items-center shadow-lg shadow-black/5 hover:shadow-xl active:scale-95 ${
-                        isCompleted
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-900 hover:bg-blue-600 text-white'
-                    }`}
+                    className={`mt-auto block w-full text-center font-black py-3 sm:py-4 rounded-xl transition-all flex justify-center items-center shadow-lg shadow-black/5 hover:shadow-xl active:scale-95 ${isCompleted
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-900 hover:bg-blue-600 text-white'
+                        }`}
                 >
                     {!isCompleted && <ExternalLink className="w-4 h-4 mr-2" />}
                     {isCompleted ? 'Contest Ended' : 'Join Contest'}
