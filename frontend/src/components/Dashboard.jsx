@@ -221,7 +221,7 @@ const Dashboard = () => {
                         <div>
                             <h3 className="font-bold text-amber-900 text-base sm:text-lg tracking-tight">Email Verification Required</h3>
                             <p className="text-amber-700 text-sm sm:text-base mt-1 leading-relaxed">
-                                Please verify your email to activate **automated 1-hour contest reminders**. Check your inbox (or spam) for the verification link.
+                                Please verify your email to activate <span className="font-extrabold text-amber-900 bg-amber-500/20 px-2 py-0.5 rounded-md mx-0.5">automated 1-hour contest reminders</span>. Check your inbox (or spam) for the verification link.
                             </p>
                         </div>
                     </div>
@@ -233,7 +233,7 @@ const Dashboard = () => {
                         <div>
                             <h3 className="font-bold text-emerald-900 text-base sm:text-lg tracking-tight">Notifications Active</h3>
                             <p className="text-emerald-700 text-sm sm:text-base mt-1 leading-relaxed">
-                                You are all set! You will receive automated emails **1 hour before** any contest starts. Good luck with your coding!
+                                You are all set! You will receive automated emails <span className="font-extrabold text-emerald-900 bg-emerald-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hour before</span> any contest starts. Good luck with your coding!
                             </p>
                         </div>
                     </div>

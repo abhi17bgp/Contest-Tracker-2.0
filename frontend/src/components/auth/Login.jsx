@@ -3,7 +3,7 @@ import { Link, useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import { Trophy, LogIn, Code, Bell, LineChart, Loader2 } from 'lucide-react';
+import { Trophy, LogIn, Code, Bell, LineChart, Loader2, Mail, CheckCircle2, Terminal, Laptop } from 'lucide-react';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -31,10 +31,34 @@ const Login = () => {
         }
     };
 
+    // Array of CP related icons to visually represent competitive programmers
+    const cpIcons = [Terminal, Code, Laptop];
+
     return (
         <div className="flex min-h-screen bg-gray-50 flex-col lg:flex-row">
             {/* Mobile Top Banner — visible only on small screens */}
-            <div className="lg:hidden bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-6 py-6 flex flex-col items-center text-center">
+            <div className="lg:hidden bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-6 py-6 flex flex-col items-center text-center relative overflow-hidden">
+                {/* ── Mobile Floating Animation ── */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-60">
+                    {[Terminal, Code].map((CpIcon, i) => (
+                        <div 
+                            key={i} 
+                            className="absolute bottom-0 animate-float-up flex items-center drop-shadow-lg bg-white/10 rounded-full px-3 py-1.5 backdrop-blur-sm"
+                            style={{
+                                left: `${15 + (i * 40)}%`,
+                                animationDelay: `${i * 2}s`,
+                                animationDuration: '12s'
+                            }}
+                        >
+                            <Mail className="w-5 h-5 text-blue-200 opacity-90" />
+                            <div className="mx-2 w-6 h-[2px] bg-gradient-to-r from-blue-400/50 to-blue-200/80 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 h-full w-2 bg-white animate-pulse"></div>
+                            </div>
+                            <CpIcon className="w-5 h-5 text-indigo-200 opacity-90" />
+                        </div>
+                    ))}
+                </div>
+                
                 <div className="flex items-center mb-3">
                     <Trophy className="w-11 h-11 text-yellow-300 mr-2" />
                     <span className="text-xl font-extrabold tracking-tight">Contest Tracker</span>
@@ -51,8 +75,47 @@ const Login = () => {
             {/* Left Side: About Website — Desktop only */}
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white flex-col justify-center items-center px-12 relative overflow-hidden">
                 {/* Decorative background elements */}
-                <div className="absolute top-0 right-0 -trate-y-12 translate-x-12 w-96 h-96 bg-blue-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-blue-500 opacity-20 rounded-full blur-3xl pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-96 h-96 bg-indigo-500 opacity-30 rounded-full blur-3xl pointer-events-none"></div>
+
+                {/* ── Floating Animation: Sending Verified Emails to CP Programmers ── */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden object-cover opacity-60">
+                    {[...Array(6)].map((_, i) => {
+                        const CpIcon = cpIcons[i % cpIcons.length];
+                        return (
+                            <div 
+                                key={i} 
+                                className="absolute bottom-0 animate-float-up flex items-center drop-shadow-2xl bg-white/5 rounded-full px-4 py-2 border border-white/10 backdrop-blur-sm"
+                                style={{
+                                    left: `${15 + (i * 12)}%`,
+                                    animationDelay: `${i * 2.2}s`,
+                                    animationDuration: `${14 + (i % 3) * 3}s`
+                                }}
+                            >
+                                {/* Verified Email */}
+                                <div className="relative flex-shrink-0">
+                                    <Mail className="w-8 h-8 text-blue-200 opacity-80" />
+                                    <div className="absolute -top-1 -right-1 bg-green-500 rounded-full border border-blue-800">
+                                        <CheckCircle2 className="w-3 h-3 text-white" />
+                                    </div>
+                                </div>
+                                
+                                {/* Animated sending line */}
+                                <div className="mx-3 w-8 h-[2px] bg-gradient-to-r from-blue-400/30 to-blue-200/80 overflow-hidden relative">
+                                    <div className="absolute top-0 left-0 h-full w-2 bg-white animate-pulse shadow-[0_0_8px_white]"></div>
+                                </div>
+
+                                {/* Competitive Programmer representation */}
+                                <div className="flex-shrink-0 relative">
+                                    <CpIcon className="w-8 h-8 text-indigo-300 opacity-90" />
+                                    <div className="absolute -bottom-1 -right-1 rounded-full bg-blue-900 border border-blue-500 p-0.5">
+                                        <Code className="w-2.5 h-2.5 text-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
 
                 <div className="relative z-10 max-w-lg">
                     <div className="flex items-center ">
@@ -80,7 +143,7 @@ const Login = () => {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold mb-2 text-white">Smart Reminders</h3>
-                                <p className="text-blue-100/80 leading-relaxed">Stay ahead with automated email reminders sent **1 hour before** every contest. Never miss a challenge again.</p>
+                                <p className="text-blue-100/80 leading-relaxed">Stay ahead with automated email reminders sent <span className="font-extrabold text-yellow-300 bg-yellow-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hour before</span> every contest. Never miss a challenge again.</p>
                             </div>
                         </div>
                         <div className="flex items-start group">
@@ -97,7 +160,7 @@ const Login = () => {
             </div>
 
             {/* Right Side: Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-8 lg:p-8 bg-gray-50">
+            <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-8 lg:p-8 bg-gray-50 relative z-20">
                 <div className="w-full max-w-md bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
                     <div className="hidden lg:flex justify-center items-center mb-8">
                         <Trophy className="w-16 h-16 text-blue-600 mr-3" />
@@ -134,8 +197,8 @@ const Login = () => {
                                 placeholder="Enter your password"
                             />
                         </div>
-                        <button
-                            type="submit"
+                        <button 
+                            type="submit" 
                             disabled={isLoading}
                             className={`w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center shadow-lg shadow-blue-600/30 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
