@@ -29,6 +29,7 @@ const Dashboard = () => {
 
                 const now = new Date();
                 const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
 
                 const active = [];
                 const upcoming = [];
@@ -41,6 +42,8 @@ const Dashboard = () => {
                     if (contestStart >= startOfTomorrow) {
                         // Future days → Upcoming
                         upcoming.push(contest);
+                    } else if (contestEnd < startOfToday) {
+                        // Ended before today → Ignore (will be cleaned up by backend)
                     } else if (now > contestEnd) {
                         // Started today but already finished → Ended Today
                         ended.push(contest);
