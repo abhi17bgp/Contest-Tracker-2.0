@@ -39,40 +39,62 @@ const Login = () => {
     return (
         <div className="flex min-h-screen bg-gray-50 flex-col lg:flex-row">
             {/* Mobile Top Banner — visible only on small screens */}
-            <div className="lg:hidden bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-6 py-6 flex flex-col items-center text-center relative overflow-hidden">
-                {/* ── Mobile Floating Animation ── */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-60">
+            <div className="lg:hidden bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white px-5 pt-7 pb-6 flex flex-col items-center text-center relative overflow-hidden">
+                {/* Floating animation */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
                     {[Terminal, Code].map((CpIcon, i) => (
-                        <div 
-                            key={i} 
-                            className="absolute bottom-0 animate-float-up flex items-center drop-shadow-lg bg-white/10 rounded-full px-3 py-1.5 backdrop-blur-sm"
-                            style={{
-                                left: `${15 + (i * 40)}%`,
-                                animationDelay: `${i * 2}s`,
-                                animationDuration: '12s'
-                            }}
+                        <div
+                            key={i}
+                            className="absolute bottom-0 animate-float-up flex items-center bg-white/10 rounded-full px-3 py-1.5 backdrop-blur-sm"
+                            style={{ left: `${15 + (i * 40)}%`, animationDelay: `${i * 2}s`, animationDuration: '12s' }}
                         >
-                            <Mail className="w-5 h-5 text-blue-200 opacity-90" />
-                            <div className="mx-2 w-6 h-[2px] bg-gradient-to-r from-blue-400/50 to-blue-200/80 relative overflow-hidden">
-                                <div className="absolute top-0 left-0 h-full w-2 bg-white animate-pulse"></div>
+                            <Mail className="w-5 h-5 text-blue-200" />
+                            <div className="mx-2 w-6 h-[2px] bg-white/50 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 h-full w-2 bg-white animate-pulse" />
                             </div>
-                            <CpIcon className="w-5 h-5 text-indigo-200 opacity-90" />
+                            <CpIcon className="w-5 h-5 text-indigo-200" />
                         </div>
                     ))}
                 </div>
-                
-                <div className="flex items-center mb-3">
-                    <Trophy className="w-11 h-11 text-yellow-300 mr-2" />
-                    <span className="text-xl font-extrabold tracking-tight">Contest Tracker</span>
+
+                {/* Logo */}
+                <div className="relative z-10 flex items-center mb-2">
+                    <Trophy className="w-10 h-10 text-yellow-300 mr-2 drop-shadow-lg" />
+                    <span className="text-2xl font-extrabold tracking-tight">Contest Tracker</span>
                 </div>
-                <p className="text-blue-100 text-sm leading-relaxed max-w-xs mb-3">
-                    Track contests across Codeforces, LeetCode, CodeChef &amp; more — all in one place.
+                <p className="relative z-10 text-blue-100 text-sm leading-relaxed max-w-xs mb-5">
+                    One place to track all coding contests. We'll make sure you never forget to join one! 🏆
                 </p>
-                <div className="bg-blue-600/30 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-400/30 flex items-center">
-                    <Bell className="w-3 h-3 mr-2 text-yellow-300 animate-pulse" />
-                    Emails & Native Push Alerts
+
+                {/* Feature Cards */}
+                <div className="relative z-10 w-full max-w-sm space-y-3">
+                    {/* Feature 1 */}
+                    <div className="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 flex items-center text-left backdrop-blur-sm">
+                        <span className="text-2xl mr-3 flex-shrink-0">🗓️</span>
+                        <div>
+                            <p className="font-bold text-sm text-white">All Contests, One Screen</p>
+                            <p className="text-blue-200 text-xs leading-snug mt-0.5">Codeforces, LeetCode, CodeChef, AtCoder & more — sorted by time, no searching needed.</p>
+                        </div>
+                    </div>
+                    {/* Feature 2 */}
+                    <div className="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 flex items-center text-left backdrop-blur-sm">
+                        <span className="text-2xl mr-3 flex-shrink-0">📧</span>
+                        <div>
+                            <p className="font-bold text-sm text-white">Email Reminder</p>
+                            <p className="text-blue-200 text-xs leading-snug mt-0.5">We send you an email <strong className="text-yellow-300">1 hour before</strong> the contest so you can prepare — just like a calendar reminder.</p>
+                        </div>
+                    </div>
+                    {/* Feature 3 */}
+                    <div className="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 flex items-center text-left backdrop-blur-sm">
+                        <span className="text-2xl mr-3 flex-shrink-0">🔔</span>
+                        <div>
+                            <p className="font-bold text-sm text-white">Popup Alerts (Like WhatsApp)</p>
+                            <p className="text-blue-200 text-xs leading-snug mt-0.5">A notification pops up on your phone or computer screen <strong className="text-orange-300">15 min</strong> & <strong className="text-red-300">5 min</strong> before it starts — no app install needed!</p>
+                        </div>
+                    </div>
                 </div>
             </div>
+
 
             {/* Left Side: About Website — Desktop only */}
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white flex-col justify-center items-center px-12 relative overflow-hidden">
@@ -144,8 +166,8 @@ const Login = () => {
                                 <Bell className="w-7 h-7 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold mb-2 text-white">Smart Push Alerts</h3>
-                                <p className="text-blue-100/80 leading-relaxed text-sm">Never miss a challenge! Receive automated emails <span className="font-extrabold text-yellow-300 bg-yellow-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hr before</span> and native desktop/mobile push popups <span className="font-extrabold text-red-300 bg-red-500/30 px-2 py-0.5 rounded-md mx-0.5">15 min & 5 min before</span> the contest starts.</p>
+                                <h3 className="text-xl font-bold mb-2 text-white">Reminders on Your Screen 🔔</h3>
+                                <p className="text-blue-100/80 leading-relaxed text-sm">We remind you like a friend would — an <span className="font-extrabold text-yellow-300">email 1 hour before</span>, and a popup on your screen <span className="font-extrabold text-orange-300">15 minutes</span> and <span className="font-extrabold text-red-300">5 minutes</span> before the contest starts. No app download needed.</p>
                             </div>
                         </div>
                         <div className="flex items-start group">
