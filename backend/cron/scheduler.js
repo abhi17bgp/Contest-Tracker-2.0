@@ -9,17 +9,17 @@ const USERNAME = process.env.CLIST_USERNAME || 'abhi17'; // From the old impleme
 const API_KEY = process.env.CLIST_API_KEY || '1efafc75818736bfddefe25a5fa4d609df51f3c2';
 
 const PLATFORMS = {
-  'codeforces.com': 'Codeforces',
-  'codechef.com': 'CodeChef', 
-  'atcoder.jp': 'AtCoder',
-  'leetcode.com': 'LeetCode',
-  'geeksforgeeks.org': 'GeeksforGeeks'
+    'codeforces.com': 'Codeforces',
+    'codechef.com': 'CodeChef',
+    'atcoder.jp': 'AtCoder',
+    'leetcode.com': 'LeetCode',
+    'geeksforgeeks.org': 'GeeksforGeeks'
 };
 
 const fetchAndSyncDailyContests = async () => {
     try {
         console.log('[CRON] Starting Daily Sync of Contests...');
-        
+
         // 1. Wipe previous day contests from MongoDB
         await Contest.deleteMany({});
         console.log('[CRON] Wiped previous contests from database.');
@@ -44,18 +44,18 @@ const fetchAndSyncDailyContests = async () => {
 
         // Filter for supported platforms and exclude practice/training contests
         const EXCLUDED_KEYWORDS = ['training', 'practice', 'trial', 'testing', 'easy', 'all', 'daily training'];
-        
+
         const filteredContests = contestsData.filter(contest => {
             const isSupportedPlatform = Object.keys(PLATFORMS).some(platform => contest.host.includes(platform));
             const eventName = contest.event.toLowerCase();
             const containsExcludedKeyword = EXCLUDED_KEYWORDS.some(keyword => eventName.includes(keyword));
-            
+
             return isSupportedPlatform && !containsExcludedKeyword;
         });
 
         // 3. Deduplicate and Bulk insert into DB
         const contestMap = new Map();
-        
+
         filteredContests.forEach(c => {
             const id = c.id.toString();
             if (!contestMap.has(id)) {
@@ -74,7 +74,7 @@ const fetchAndSyncDailyContests = async () => {
         const mappedContests = Array.from(contestMap.values());
 
         if (mappedContests.length > 0) {
-            await Contest.insertMany(mappedContests, { ordered: false }); 
+            await Contest.insertMany(mappedContests, { ordered: false });
         }
 
         console.log(`[CRON] Inserted ${mappedContests.length} unique contests for the next 14 days.`);
@@ -112,12 +112,12 @@ const checkAndSendReminders = async () => {
 
         // Find verified users
         const verifiedUsers = await User.find({ isVerified: true });
-        
+
         if (verifiedUsers.length === 0) {
-             console.log('[CRON] No verified users to notify, skipping emails.');
+            console.log('[CRON] No verified users to notify, skipping emails.');
         } else {
             console.log(`[CRON] Preparing to send reminders to ${verifiedUsers.length} verified users.`);
-            
+
             for (const contest of upcomingContests) {
                 const startTimeMillis = new Date(contest.startTime).getTime();
                 const timeDiffMins = (startTimeMillis - now.getTime()) / (1000 * 60);
@@ -131,8 +131,8 @@ const checkAndSendReminders = async () => {
                     console.log(`[CRON] Sent 1-hour EMAIL alert for ${contest.name}`);
                 }
 
-                // Send 15-Minute Push Notification Event (Triggers somewhere between 16 mins and 11 mins)
-                if (timeDiffMins <= 16 && timeDiffMins > 0 && !contest.pushNotified) {
+                // Send 15-Minute Push Notification Event (Triggers between 7–16 mins)
+                if (timeDiffMins <= 16 && timeDiffMins > 6 && !contest.pushNotified) {
                     for (const user of verifiedUsers) {
                         if (user.pushSubscriptions && user.pushSubscriptions.length > 0) {
                             const payload = JSON.stringify({
@@ -187,7 +187,7 @@ const checkAndSendReminders = async () => {
             }
         }
     } catch (error) {
-         console.error('[CRON] Error checking reminders:', error.message);
+        console.error('[CRON] Error checking reminders:', error.message);
     }
 };
 
