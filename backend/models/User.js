@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   bio: { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
+  timezone: { type: String, default: 'UTC' },
+  pushSubscriptions: { type: Array, default: [] },
   verificationToken: { type: String },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }

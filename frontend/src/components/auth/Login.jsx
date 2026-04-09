@@ -20,7 +20,9 @@ const Login = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            const res = await axios.post(`${API_URL}/auth/login`, formData);
+            const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+            const payload = { ...formData, timezone: userTimeZone };
+            const res = await axios.post(`${API_URL}/auth/login`, payload);
             login(res.data.user, res.data.token);
             toast.success('Successfully logged in');
             navigate('/');
@@ -68,7 +70,7 @@ const Login = () => {
                 </p>
                 <div className="bg-blue-600/30 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-400/30 flex items-center">
                     <Bell className="w-3 h-3 mr-2 text-yellow-300 animate-pulse" />
-                    Automated Email Reminders
+                    Emails & Native Push Alerts
                 </div>
             </div>
 
@@ -142,8 +144,8 @@ const Login = () => {
                                 <Bell className="w-7 h-7 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold mb-2 text-white">Smart Reminders</h3>
-                                <p className="text-blue-100/80 leading-relaxed">Stay ahead with automated email reminders sent <span className="font-extrabold text-yellow-300 bg-yellow-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hour before</span> every contest. Never miss a challenge again.</p>
+                                <h3 className="text-xl font-bold mb-2 text-white">Smart Push Alerts</h3>
+                                <p className="text-blue-100/80 leading-relaxed text-sm">Never miss a challenge! Receive automated emails <span className="font-extrabold text-yellow-300 bg-yellow-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hr before</span> and native desktop/mobile push popups <span className="font-extrabold text-red-300 bg-red-500/30 px-2 py-0.5 rounded-md mx-0.5">15 min & 5 min before</span> the contest starts.</p>
                             </div>
                         </div>
                         <div className="flex items-start group">

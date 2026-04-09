@@ -7,7 +7,9 @@ const contestSchema = new mongoose.Schema({
     startTime: { type: Date, required: true },
     duration: { type: Number, required: true },
     url: { type: String, required: true },
-    notified: { type: Boolean, default: false }
+    notified: { type: Boolean, default: false },
+    pushNotified: { type: Boolean, default: false },
+    finalPushNotified: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Contest', contestSchema);

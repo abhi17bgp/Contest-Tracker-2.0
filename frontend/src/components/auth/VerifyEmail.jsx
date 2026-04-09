@@ -23,9 +23,15 @@ const VerifyEmail = () => {
             try {
                 await axios.post(`${API_URL}/auth/verify-email`, { token });
 
-                // ✅ Update the user in AuthContext immediately — no refresh needed
-                if (user) {
-                    setUser({ ...user, isVerified: true });
+                // ✅ Fetch the latest user profile and update across tabs
+                const authToken = localStorage.getItem('token');
+                if (authToken) {
+                    try {
+                        const meRes = await axios.get(`${API_URL}/auth/me`, {
+                            headers: { Authorization: `Bearer ${authToken}` }
+                        });
+                        setUser(meRes.data);
+                    } catch (e) {}
                 }
 
                 setStatus('success');

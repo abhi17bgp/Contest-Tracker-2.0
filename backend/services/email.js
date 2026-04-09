@@ -145,7 +145,7 @@ exports.sendContestReminderEmail = async (users, contest) => {
                                 <tr>
                                     <td style="padding: 5px 0; font-size: 14px; color: #6B7280; width: 100px;">Starts At</td>
                                     <td style="padding: 5px 0; font-size: 14px; color: #111827; font-weight: 700;">
-                                        ${new Date(contest.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} IST
+                                        ${new Date(contest.startTime).toLocaleString(undefined, { timeZone: user.timezone || 'UTC', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })}
                                     </td>
                                 </tr>
                                 <tr>

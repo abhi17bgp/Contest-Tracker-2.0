@@ -89,18 +89,26 @@ const checkAndSendReminders = async () => {
         const now = new Date();
         const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
 
-        // Find contests starting between now and 1 hour from now that haven't been notified
+        // Find contests starting between now and 1 hour from now that need either Email or Push
         const upcomingContests = await Contest.find({
             startTime: { $gte: now, $lte: oneHourFromNow },
-            notified: false
+            $or: [{ notified: false }, { pushNotified: false }, { finalPushNotified: false }]
         });
 
         if (upcomingContests.length === 0) {
-            console.log('[CRON] No upcoming contests starting in the next hour.');
+            console.log('[CRON] No approaching contests needing notification.');
             return;
         }
 
-        console.log(`[CRON] Found ${upcomingContests.length} contests starting soon.`);
+        console.log(`[CRON] Processing ${upcomingContests.length} contests for notifications...`);
+
+        // Initialize Web Push
+        const webpush = require('web-push');
+        webpush.setVapidDetails(
+            'mailto:alert@smartpostai.online',
+            process.env.VAPID_PUBLIC_KEY || 'BCy8Yy9wK4OwS9w_KDmqNfDjsLFQ2QwkER1kufsc-Sj5th4d3t2205YNuLxvghyLsrR3m8L7ikD4Mt60ApgBkT0',
+            process.env.VAPID_PRIVATE_KEY || 'TgvUm2FokHjtsP0qwwm3H9OjlhSmEem7W2INSRi3RvQ'
+        );
 
         // Find verified users
         const verifiedUsers = await User.find({ isVerified: true });
@@ -111,13 +119,71 @@ const checkAndSendReminders = async () => {
             console.log(`[CRON] Preparing to send reminders to ${verifiedUsers.length} verified users.`);
             
             for (const contest of upcomingContests) {
-                // Send email
-                await sendContestReminderEmail(verifiedUsers, contest);
-                
-                // Mark as notified
-                contest.notified = true;
-                await contest.save();
-                console.log(`[CRON] Marked contest ${contest.name} as notified.`);
+                const startTimeMillis = new Date(contest.startTime).getTime();
+                const timeDiffMins = (startTimeMillis - now.getTime()) / (1000 * 60);
+                let changedStatus = false;
+
+                // Send 1-Hour Email Event (Triggers somewhere between 60 mins and 55 mins)
+                if (timeDiffMins <= 61 && timeDiffMins > 0 && !contest.notified) {
+                    await sendContestReminderEmail(verifiedUsers, contest);
+                    contest.notified = true;
+                    changedStatus = true;
+                    console.log(`[CRON] Sent 1-hour EMAIL alert for ${contest.name}`);
+                }
+
+                // Send 15-Minute Push Notification Event (Triggers somewhere between 16 mins and 11 mins)
+                if (timeDiffMins <= 16 && timeDiffMins > 0 && !contest.pushNotified) {
+                    for (const user of verifiedUsers) {
+                        if (user.pushSubscriptions && user.pushSubscriptions.length > 0) {
+                            const payload = JSON.stringify({
+                                title: `🔥 15 MIN WARNING: ${contest.platform}!`,
+                                body: `${contest.name} is starting in less than 15 minutes. Prepare your environment!`,
+                                url: contest.url,
+                                icon: 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png'
+                            });
+
+                            for (const sub of user.pushSubscriptions) {
+                                try {
+                                    await webpush.sendNotification(sub, payload);
+                                } catch (e) {
+                                    // Subscription expired
+                                }
+                            }
+                        }
+                    }
+                    contest.pushNotified = true;
+                    changedStatus = true;
+                    console.log(`[CRON] Sent 15-minute PUSH alert for ${contest.name}`);
+                }
+
+                // Send 5-Minute Final Push Notification Event (Triggers somewhere between 6 mins and 1 mins)
+                if (timeDiffMins <= 6 && timeDiffMins > 0 && !contest.finalPushNotified) {
+                    for (const user of verifiedUsers) {
+                        if (user.pushSubscriptions && user.pushSubscriptions.length > 0) {
+                            const payload = JSON.stringify({
+                                title: `🚨 FINAL WARNING: ${contest.platform}!`,
+                                body: `${contest.name} is starting in exactly 5 MINUTES! Open your IDE now!`,
+                                url: contest.url,
+                                icon: 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png'
+                            });
+
+                            for (const sub of user.pushSubscriptions) {
+                                try {
+                                    await webpush.sendNotification(sub, payload);
+                                } catch (e) {
+                                    // Subscription expired
+                                }
+                            }
+                        }
+                    }
+                    contest.finalPushNotified = true;
+                    changedStatus = true;
+                    console.log(`[CRON] Sent 5-minute FINAL PUSH alert for ${contest.name}`);
+                }
+
+                if (changedStatus) {
+                    await contest.save();
+                }
             }
         }
     } catch (error) {

@@ -6,16 +6,41 @@ import { toast } from 'react-toastify';
 import Header from './Header';
 
 const Dashboard = () => {
-    const [activeContests, setActiveContests] = useState([]);     // Ongoing + Starting Soon + Upcoming-today
-    const [upcomingContests, setUpcomingContests] = useState([]); // Future days
-    const [endedContests, setEndedContests] = useState([]);       // Completed today
+    const [allContests, setAllContests] = useState([]);
+    const [currentTime, setCurrentTime] = useState(Date.now());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showEnded, setShowEnded] = useState(false);            // Collapsed by default
     const { API_URL, user } = useContext(AuthContext);
+    
+    // Auto-detect user's local timezone (fallback to UTC if browser blocks it)
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const userLocale = navigator.language || undefined;
 
     // Track previous isVerified value to detect the false → true transition
-    const prevIsVerifiedRef = useRef(null);
+    const prevIsVerifiedRef = useRef(user?.isVerified);
+    const [isPushEnabled, setIsPushEnabled] = useState(false);
+    const [showPushPrompt, setShowPushPrompt] = useState(false);
+    const promptShownRef = useRef(false);
+
+    useEffect(() => {
+        if ('serviceWorker' in navigator && user?.isVerified) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                reg.pushManager.getSubscription().then(sub => {
+                    if (sub) {
+                        setIsPushEnabled(true);
+                    } else if (
+                        !promptShownRef.current &&
+                        Notification.permission === 'default'
+                    ) {
+                        // Auto-show our custom prompt 3s after login if never asked before
+                        promptShownRef.current = true;
+                        setTimeout(() => setShowPushPrompt(true), 3000);
+                    }
+                });
+            });
+        }
+    }, [user?.isVerified]);
 
     useEffect(() => {
         const fetchContests = async () => {
@@ -27,35 +52,7 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-                const now = new Date();
-                const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-
-                const active = [];
-                const upcoming = [];
-                const ended = [];
-
-                res.data.forEach(contest => {
-                    const contestStart = new Date(contest.startTime);
-                    const contestEnd = new Date(contestStart.getTime() + contest.duration * 1000);
-
-                    if (contestStart >= startOfTomorrow) {
-                        // Future days → Upcoming
-                        upcoming.push(contest);
-                    } else if (contestEnd < startOfToday) {
-                        // Ended before today → Ignore (will be cleaned up by backend)
-                    } else if (now > contestEnd) {
-                        // Started today but already finished → Ended Today
-                        ended.push(contest);
-                    } else {
-                        // Ongoing or not yet started today → Active Today
-                        active.push(contest);
-                    }
-                });
-
-                setActiveContests(active);
-                setUpcomingContests(upcoming);
-                setEndedContests(ended);
+                setAllContests(res.data);
             } catch (err) {
                 setError('Failed to fetch contests.');
             } finally {
@@ -65,6 +62,59 @@ const Dashboard = () => {
 
         fetchContests();
     }, [API_URL]);
+
+    // Timer to re-evaluate contests every 60 seconds locally
+    useEffect(() => {
+        let lastFetchDateStr = new Date().toDateString();
+
+        const timer = setInterval(() => {
+            const now = new Date();
+            setCurrentTime(now.getTime());
+
+            // If it's 1 minute past midnight (to ensure backend cron finished wiping/fetching)
+            // and we haven't fetched the new day's schedule yet
+            if (now.getHours() === 0 && now.getMinutes() >= 1 && now.toDateString() !== lastFetchDateStr) {
+                lastFetchDateStr = now.toDateString();
+                
+                const token = localStorage.getItem('token');
+                if (token) {
+                    axios.get(`${API_URL}/contests`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }).then(res => {
+                        if (res.data && res.data.length > 0) {
+                            setAllContests(res.data);
+                        }
+                    }).catch(() => {}); // silent fail, will retry next mount
+                }
+            }
+        }, 60000);
+        
+        return () => clearInterval(timer);
+    }, [API_URL]);
+
+    // Derived states
+    const activeContests = [];
+    const upcomingContests = [];
+    const endedContests = [];
+
+    const nowTime = new Date(currentTime);
+    const startOfTomorrow = new Date(nowTime.getFullYear(), nowTime.getMonth(), nowTime.getDate() + 1, 0, 0, 0);
+    const startOfToday = new Date(nowTime.getFullYear(), nowTime.getMonth(), nowTime.getDate(), 0, 0, 0);
+
+    allContests.forEach(contest => {
+        const contestStart = new Date(contest.startTime);
+        const contestEnd = new Date(contestStart.getTime() + contest.duration * 1000);
+
+        if (contestStart >= startOfTomorrow) {
+            upcomingContests.push(contest);
+        } else if (contestEnd >= startOfToday) {
+            if (nowTime > contestEnd) {
+                endedContests.push(contest);
+            } else {
+                activeContests.push(contest);
+            }
+        }
+    });
 
     // ── Show toast when email gets verified (cross-tab or same-tab) ────────
     useEffect(() => {
@@ -80,6 +130,68 @@ const Dashboard = () => {
         }
         prevIsVerifiedRef.current = user.isVerified;
     }, [user?.isVerified, loading, user]);
+
+    const publicVapidKey = 'BCy8Yy9wK4OwS9w_KDmqNfDjsLFQ2QwkER1kufsc-Sj5th4d3t2205YNuLxvghyLsrR3m8L7ikD4Mt60ApgBkT0';
+
+    // The Web Push API requires the VAPID key as a Uint8Array, not a raw string
+    const urlBase64ToUint8Array = (base64String) => {
+        const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = atob(base64);
+        return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+    };
+
+    const isMobile = typeof window !== 'undefined' && /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    const isBrave = typeof navigator.brave !== 'undefined';
+    const alertText = isMobile ? 'Mobile Alerts' : 'Desktop Alerts';
+
+    const handlePushToggle = async () => {
+        if (!('serviceWorker' in navigator)) return toast.error('Browser unsupported');
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            
+            if (isPushEnabled) {
+                const subscription = await registration.pushManager.getSubscription();
+                if (subscription) {
+                    await subscription.unsubscribe();
+                    const token = localStorage.getItem('token');
+                    await axios.post(`${API_URL}/auth/push-unsubscribe`, { endpoint: subscription.endpoint }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }).catch(console.error);
+                }
+                setIsPushEnabled(false);
+                toast.info(`${alertText} disabled.`);
+            } else {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') return toast.error('Permission denied. Please enable notifications in browser settings.');
+
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                });
+                const token = localStorage.getItem('token');
+                await axios.post(`${API_URL}/auth/push-subscribe`, { subscription }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                setIsPushEnabled(true);
+                toast.success(`Secure ${alertText.toLowerCase()} enabled!`);
+            }
+        } catch (err) {
+            console.error(err);
+            const isBraveBlocked = err.message?.includes('push service error') || err.name === 'AbortError';
+            if (isBraveBlocked && isBrave) {
+                toast.error(
+                    '🦁 Brave Browser Detected! Go to brave://settings/privacy → Enable "Use Google services for push messaging".',
+                    { autoClose: 10000 }
+                );
+            } else {
+                toast.error('Failed to enable alerts. Check that notifications are allowed in your browser settings.');
+            }
+        }
+    };
+
 
     const getPlatformColor = (platform) => {
         const p = platform.toLowerCase();
@@ -98,7 +210,7 @@ const Dashboard = () => {
     };
 
     const getContestStatus = (startTime, durationInSeconds) => {
-        const now = new Date();
+        const now = new Date(currentTime);
         const start = new Date(startTime);
         const end = new Date(start.getTime() + durationInSeconds * 1000);
         const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
@@ -176,14 +288,15 @@ const Dashboard = () => {
                     <div className="flex items-center text-xs sm:text-sm font-bold bg-black/5 p-2.5 sm:p-3 rounded-xl transition-colors group-hover:bg-black/10">
                         <Clock className={`w-4 h-4 mr-2 flex-shrink-0 ${styles.accent}`} />
                         <span className="text-gray-700 leading-snug">
-                            {new Date(contest.startTime).toLocaleString('en-IN', {
-                                timeZone: 'Asia/Kolkata',
+                            {new Date(contest.startTime).toLocaleString(userLocale, {
+                                timeZone: userTimeZone,
                                 month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
                                 minute: '2-digit',
-                                hour12: true
-                            })} IST
+                                hour12: true,
+                                timeZoneName: 'short'
+                            })}
                         </span>
                     </div>
                     <div className="flex items-center text-xs sm:text-sm font-bold bg-black/5 p-2.5 sm:p-3 rounded-xl transition-colors group-hover:bg-black/10">
@@ -232,6 +345,63 @@ const Dashboard = () => {
         <div className="min-h-screen bg-gray-50 pb-12">
             <Header />
 
+            {/* ── Push Notification Prompt Modal ── */}
+            {showPushPrompt && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-[slide-up_0.3s_ease]">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-5 text-white">
+                            <div className="flex items-center mb-1">
+                                <Bell className="w-6 h-6 mr-2 text-yellow-300 animate-pulse" />
+                                <h3 className="text-lg font-extrabold tracking-tight">Never Miss a Contest!</h3>
+                            </div>
+                            <p className="text-blue-100 text-sm">Enable instant alerts sent directly to your screen.</p>
+                        </div>
+                        {/* Body */}
+                        <div className="px-6 py-5">
+                            <div className="space-y-3 mb-5">
+                                <div className="flex items-center text-sm text-gray-700">
+                                    <span className="text-xl mr-3">📧</span>
+                                    <span>Email reminder <strong>1 hour before</strong> the contest</span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-700">
+                                    <span className="text-xl mr-3">🔥</span>
+                                    <span>Push popup <strong>15 minutes before</strong> the contest</span>
+                                </div>
+                                <div className="flex items-center text-sm text-gray-700">
+                                    <span className="text-xl mr-3">🚨</span>
+                                    <span>Final alert <strong>5 minutes before</strong> it starts</span>
+                                </div>
+                            </div>
+                            {isBrave && (
+                                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4 flex items-start">
+                                    <span className="mr-1.5">🦁</span>
+                                    <span><strong>Brave user?</strong> Enable <code className="bg-amber-100 px-1 rounded">Use Google services for push messaging</code> in <code className="bg-amber-100 px-1 rounded">brave://settings/privacy</code> first.</span>
+                                </p>
+                            )}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={async () => {
+                                        setShowPushPrompt(false);
+                                        await handlePushToggle();
+                                    }}
+                                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-indigo-200 flex items-center justify-center"
+                                >
+                                    <Bell className="w-4 h-4 mr-2" />
+                                    Yes, Enable Alerts!
+                                </button>
+                                <button
+                                    onClick={() => setShowPushPrompt(false)}
+                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 rounded-xl transition-all active:scale-95"
+                                >
+                                    Maybe Later
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <main className="container mx-auto px-3 sm:px-4 py-5 sm:py-8">
                 {/* ── Daily Motivation Quote ── */}
                 <div className="bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 rounded-2xl shadow-lg border border-indigo-500/20 mb-6 p-5 sm:p-6 flex items-center justify-between relative overflow-hidden group">
@@ -276,6 +446,19 @@ const Dashboard = () => {
                             <p className="text-emerald-700 text-sm sm:text-base mt-1 leading-relaxed">
                                 You are all set! You will receive automated emails <span className="font-extrabold text-emerald-900 bg-emerald-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hour before</span> any contest starts. Good luck with your coding!
                             </p>
+                            <button
+                                onClick={handlePushToggle}
+                                className={`mt-4 px-4 py-2 rounded-lg font-bold shadow-md transition-all active:scale-95 text-sm flex items-center text-white ${isPushEnabled ? 'bg-red-500 hover:bg-red-600' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+                            >
+                                <Bell className={`w-4 h-4 mr-2 ${!isPushEnabled && 'text-yellow-300 animate-pulse'}`} />
+                                {isPushEnabled ? `Disable ${alertText}` : `Enable ${alertText}`}
+                            </button>
+                            {isBrave && !isPushEnabled && (
+                                <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-start">
+                                    <span className="mr-1.5 text-base">🦁</span>
+                                    <span><strong>Brave User?</strong> Go to <code className="bg-amber-100 px-1 rounded">brave://settings/privacy</code> → enable <strong>"Use Google services for push messaging"</strong> first.</span>
+                                </p>
+                            )}
                         </div>
                     </div>
                 )}
@@ -288,7 +471,7 @@ const Dashboard = () => {
                             Today's Contests
                         </h2>
                         <span className="bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full text-xs sm:text-sm whitespace-nowrap">
-                            {new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', month: 'short', day: 'numeric', year: 'numeric' })}
+                            {new Date().toLocaleDateString(userLocale, { timeZone: userTimeZone, month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
                     </div>
 

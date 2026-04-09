@@ -29,7 +29,7 @@ const protect = (req, res, next) => {
 // @route   POST /api/v1/auth/register
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, timezone } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -49,7 +49,8 @@ router.post('/register', async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            verificationToken
+            verificationToken,
+            timezone: timezone || 'UTC'
         });
 
         await sendVerificationEmail(user.name, user.email, verificationToken);
@@ -85,7 +86,7 @@ router.post('/verify-email', async (req, res) => {
 // @route   POST /api/v1/auth/login
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, timezone } = req.body;
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -101,11 +102,17 @@ router.post('/login', async (req, res) => {
         //   return res.status(401).json({ message: 'Please verify your email before logging in.' });
         // }
 
+        // Silently update user's timezone if it has changed/was provided
+        if (timezone && user.timezone !== timezone) {
+            user.timezone = timezone;
+            await user.save();
+        }
+
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_EXPIRE || '30d'
         });
 
-        res.status(200).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, bio: user.bio, isVerified: user.isVerified } });
+        res.status(200).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, bio: user.bio, isVerified: user.isVerified, timezone: user.timezone } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -212,6 +219,52 @@ router.put('/profile', protect, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// @route   POST /api/v1/auth/push-subscribe
+// @desc    Save a web push subscription to user profile
+// @access  Private
+router.post('/push-subscribe', protect, async (req, res) => {
+    try {
+        const { subscription } = req.body;
+        if (!subscription) {
+            return res.status(400).json({ message: 'Subscription required' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if subscription already exists to avoid duplicates
+        const subExists = user.pushSubscriptions.some(sub => sub.endpoint === subscription.endpoint);
+        if (!subExists) {
+            user.pushSubscriptions.push(subscription);
+            await user.save();
+        }
+
+        res.status(200).json({ success: true, message: 'Subscription saved successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error parsing subscription' });
+    }
+});
+
+// @route   POST /api/v1/auth/push-unsubscribe
+// @desc    Remove a web push subscription
+// @access  Private
+router.post('/push-unsubscribe', protect, async (req, res) => {
+    try {
+        const { endpoint } = req.body;
+        const user = await User.findById(req.user.id);
+        if (user) {
+            user.pushSubscriptions = user.pushSubscriptions.filter(sub => sub.endpoint !== endpoint);
+            await user.save();
+        }
+        res.status(200).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error parsing unsubscribe' });
     }
 });
 

@@ -24,10 +24,12 @@ const Register = () => {
         
         setIsLoading(true);
         try {
+            const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
             await axios.post(`${API_URL}/auth/register`, {
                 name: formData.name,
                 email: formData.email,
-                password: formData.password
+                password: formData.password,
+                timezone: userTimeZone
             });
             toast.success('Registration successful! Please check your email to verify your account.');
             navigate('/login');
