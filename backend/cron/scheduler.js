@@ -16,6 +16,17 @@ const PLATFORMS = {
     'geeksforgeeks.org': 'GeeksforGeeks'
 };
 
+// Use official platform logos for push notification icons
+const getPlatformIcon = (platform) => {
+    const p = platform.toLowerCase();
+    if (p.includes('codeforces'))    return 'https://codeforces.com/favicon-96x96.png';
+    if (p.includes('codechef'))      return 'https://www.codechef.com/static/images/cc-logo.png';
+    if (p.includes('leetcode'))      return 'https://leetcode.com/favicon-192x192.png';
+    if (p.includes('atcoder'))       return 'https://atcoder.jp/assets/atcoder.png';
+    if (p.includes('geeksforgeeks')) return 'https://www.geeksforgeeks.org/favicon.ico';
+    return 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png'; // fallback trophy
+};
+
 const fetchAndSyncDailyContests = async () => {
     try {
         console.log('[CRON] Starting Daily Sync of Contests...');
@@ -139,7 +150,7 @@ const checkAndSendReminders = async () => {
                                 title: `🔥 15 MIN WARNING: ${contest.platform}!`,
                                 body: `${contest.name} is starting in less than 15 minutes. Prepare your environment!`,
                                 url: contest.url,
-                                icon: 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png'
+                                icon: getPlatformIcon(contest.platform)
                             });
 
                             for (const sub of user.pushSubscriptions) {
@@ -162,9 +173,9 @@ const checkAndSendReminders = async () => {
                         if (user.pushSubscriptions && user.pushSubscriptions.length > 0) {
                             const payload = JSON.stringify({
                                 title: `🚨 FINAL WARNING: ${contest.platform}!`,
-                                body: `${contest.name} is starting in exactly 5 MINUTES! Open your IDE now!`,
+                                body: `${contest.name} kicks off in 5 MINUTES! Take a deep breath, you've got this! 💪`,
                                 url: contest.url,
-                                icon: 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png'
+                                icon: getPlatformIcon(contest.platform)
                             });
 
                             for (const sub of user.pushSubscriptions) {
