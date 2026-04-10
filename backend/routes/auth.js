@@ -4,7 +4,8 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/email');
+const { sendVerificationEmail, sendPasswordResetEmail, sendContestReminderEmail } = require('../services/email');
+const Contest = require('../models/Contest');
 
 // Middleware to authenticate JWT
 const protect = (req, res, next) => {
@@ -75,6 +76,80 @@ router.post('/verify-email', async (req, res) => {
         user.isVerified = true;
         user.verificationToken = undefined;
         await user.save();
+
+        // ── Catch-up notification: send alerts if a contest is in a live window right now ──
+        // Fire-and-forget so verification response is never delayed
+        (async () => {
+            try {
+                const now = new Date();
+                const oneHourFromNow = new Date(now.getTime() + 61 * 60 * 1000);
+
+                const nearContests = await Contest.find({
+                    startTime: { $gte: now, $lte: oneHourFromNow }
+                });
+
+                if (nearContests.length === 0) return;
+
+                const webpush = require('web-push');
+                webpush.setVapidDetails(
+                    'mailto:alert@smartpostai.online',
+                    process.env.VAPID_PUBLIC_KEY,
+                    process.env.VAPID_PRIVATE_KEY
+                );
+
+                const getPlatformIcon = (platform) => {
+                    const p = platform.toLowerCase();
+                    if (p.includes('codeforces'))    return 'https://codeforces.com/favicon-96x96.png';
+                    if (p.includes('codechef'))      return 'https://www.codechef.com/static/images/cc-logo.png';
+                    if (p.includes('leetcode'))      return 'https://leetcode.com/favicon-192x192.png';
+                    if (p.includes('atcoder'))       return 'https://atcoder.jp/assets/atcoder.png';
+                    if (p.includes('geeksforgeeks')) return 'https://www.geeksforgeeks.org/favicon.ico';
+                    return 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png';
+                };
+
+                for (const contest of nearContests) {
+                    const minsLeft = (new Date(contest.startTime) - now) / 60000;
+
+                    // Email window: 50–61 mins before (same rule as cron)
+                    if (minsLeft <= 61 && minsLeft > 50) {
+                        await sendContestReminderEmail([user], contest);
+                        console.log(`[VERIFY] Sent catch-up EMAIL to ${user.email} for ${contest.name}`);
+                    }
+
+                    // Push windows: send if user has subscriptions
+                    if (user.pushSubscriptions && user.pushSubscriptions.length > 0) {
+                        let pushPayload = null;
+
+                        if (minsLeft <= 16 && minsLeft > 6) {
+                            pushPayload = JSON.stringify({
+                                title: `🔥 15 MIN WARNING: ${contest.platform}!`,
+                                body: `${contest.name} is starting in less than 15 minutes. Prepare your environment!`,
+                                url: contest.url,
+                                icon: getPlatformIcon(contest.platform)
+                            });
+                        } else if (minsLeft <= 6 && minsLeft > 0) {
+                            pushPayload = JSON.stringify({
+                                title: `🚨 FINAL WARNING: ${contest.platform}!`,
+                                body: `${contest.name} kicks off in 5 MINUTES! Take a deep breath, you've got this! 💪`,
+                                url: contest.url,
+                                icon: getPlatformIcon(contest.platform)
+                            });
+                        }
+
+                        if (pushPayload) {
+                            for (const sub of user.pushSubscriptions) {
+                                try {
+                                    await webpush.sendNotification(sub, pushPayload);
+                                } catch (e) { /* expired sub, ignore */ }
+                            }
+                            console.log(`[VERIFY] Sent catch-up PUSH to ${user.email} for ${contest.name}`);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('[VERIFY] Catch-up notification error:', e.message);
+            }
+        })();
 
         res.status(200).json({ message: 'Email verified successfully. You can now log in.' });
     } catch (error) {

@@ -134,8 +134,8 @@ const checkAndSendReminders = async () => {
                 const timeDiffMins = (startTimeMillis - now.getTime()) / (1000 * 60);
                 let changedStatus = false;
 
-                // Send 1-Hour Email Event (Triggers somewhere between 60 mins and 55 mins)
-                if (timeDiffMins <= 61 && timeDiffMins > 0 && !contest.notified) {
+                // Send 1-Hour Email Event (strict window: 60–50 mins before start only)
+                if (timeDiffMins <= 61 && timeDiffMins > 50 && !contest.notified) {
                     await sendContestReminderEmail(verifiedUsers, contest);
                     contest.notified = true;
                     changedStatus = true;
