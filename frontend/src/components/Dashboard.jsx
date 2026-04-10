@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { Calendar, Clock, ExternalLink, Activity, ChevronDown, CheckCircle2, Bell, Sparkles } from 'lucide-react';
+import { Calendar, Clock, ExternalLink, Activity, ChevronDown, CheckCircle2, Bell, Trophy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Header from './Header';
 
@@ -454,7 +454,7 @@ const Dashboard = () => {
                     
                     <div className="flex items-start sm:items-center relative z-10 w-full">
                         <div className="bg-white/10 p-3 rounded-xl mr-4 sm:mr-5 backdrop-blur-sm shadow-inner group-hover:scale-110 transition-transform duration-300">
-                            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-300 animate-pulse" />
+                            <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-300 animate-pulse" />
                         </div>
                         <div className="flex-1">
                             <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-indigo-300 mb-1 block opacity-80">Quote of the Day</span>
