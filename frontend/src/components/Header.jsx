@@ -208,6 +208,24 @@ const Header = () => {
               </div>
 
               <form onSubmit={handleUpdateProfile} className="space-y-5">
+                {/* Email — read-only, shown for account identification */}
+                <div>
+                  <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1 flex justify-between">
+                    Email <span className="text-gray-400 font-normal normal-case italic">Cannot be changed</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <input
+                      type="email"
+                      value={user?.email || ''}
+                      disabled
+                      className="w-full pl-12 pr-4 py-3 bg-gray-100 border border-gray-100 rounded-2xl text-gray-400 font-medium cursor-not-allowed select-none"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Display Name</label>
                   <div className="relative group">
