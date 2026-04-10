@@ -166,17 +166,27 @@ const Dashboard = () => {
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') return toast.error('Permission denied. Please enable notifications in browser settings.');
 
-                const subscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-                });
-                const token = localStorage.getItem('token');
-                await axios.post(`${API_URL}/auth/push-subscribe`, { subscription }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-
+                // Optimistic update — show feedback instantly after permission is granted
                 setIsPushEnabled(true);
                 toast.success(`Secure ${alertText.toLowerCase()} enabled!`);
+
+                // Complete subscription in the background
+                try {
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                    });
+                    const token = localStorage.getItem('token');
+                    await axios.post(`${API_URL}/auth/push-subscribe`, { subscription }, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                } catch (subErr) {
+                    // Revert optimistic update if subscription/save fails
+                    setIsPushEnabled(false);
+                    toast.error('Failed to complete subscription. Please try again.');
+                    console.error(subErr);
+                    return;
+                }
             }
         } catch (err) {
             console.error(err);
