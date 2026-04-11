@@ -35,7 +35,12 @@ const Dashboard = () => {
                     ) {
                         // Auto-show our custom prompt 3s after login if never asked before
                         promptShownRef.current = true;
-                        setTimeout(() => setShowPushPrompt(true), 3000);
+                        setTimeout(() => {
+                            // Re-check: user may have handled permission while timer was running
+                            if (Notification.permission === 'default') {
+                                setShowPushPrompt(true);
+                            }
+                        }, 3000);
                     }
                 });
             });
@@ -147,6 +152,9 @@ const Dashboard = () => {
 
     const handlePushToggle = async () => {
         if (!('serviceWorker' in navigator)) return toast.error('Browser unsupported');
+
+        // Always dismiss our custom prompt — prevents card + browser popup overlap
+        setShowPushPrompt(false);
 
         try {
             const registration = await navigator.serviceWorker.ready;
