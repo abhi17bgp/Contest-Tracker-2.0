@@ -189,27 +189,51 @@ const Dashboard = () => {
                     );
                     return;
                 }
+                const toastId = toast.loading(`Finalizing ${alertText.toLowerCase()}, please wait...`);
 
-                // Optimistic update — show feedback instantly after permission is granted
-                setIsPushEnabled(true);
-                toast.success(`Secure ${alertText.toLowerCase()} enabled!`);
-
-                // Complete subscription in the background
+                // Complete subscription
                 try {
                     const subscription = await registration.pushManager.subscribe({
                         userVisibleOnly: true,
                         applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
                     });
+
+                    // We use toJSON() to ensure that the object sent to the server 
+                    // includes necessary browser-specific sub-objects like 'keys'
                     const token = localStorage.getItem('token');
-                    await axios.post(`${API_URL}/auth/push-subscribe`, { subscription }, {
+                    await axios.post(`${API_URL}/auth/push-subscribe`, { 
+                        subscription: subscription.toJSON() 
+                    }, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
+
+                    // Success!
+                    setIsPushEnabled(true);
+                    toast.update(toastId, { 
+                        render: `Secure ${alertText.toLowerCase()} enabled!`, 
+                        type: "success", 
+                        isLoading: false, 
+                        autoClose: 5000 
+                    });
                 } catch (subErr) {
-                    // Revert optimistic update if subscription/save fails
-                    setIsPushEnabled(false);
-                    toast.error('Failed to complete subscription. Please try again.');
-                    console.error(subErr);
-                    return;
+                    console.error('Push subscription failed:', subErr);
+                    
+                    // Detailed error message based on common failure points
+                    let errMsg = 'Failed to complete subscription. ';
+                    if (subErr.message?.includes('registration')) {
+                        errMsg += 'Service Worker registration lost. Try refreshing the page.';
+                    } else if (subErr.response?.status === 401) {
+                        errMsg += 'Session expired. Please log in again.';
+                    } else {
+                        errMsg += 'Please check your connection and try again.';
+                    }
+
+                    toast.update(toastId, { 
+                        render: errMsg, 
+                        type: "error", 
+                        isLoading: false, 
+                        autoClose: 8000 
+                    });
                 }
             }
         } catch (err) {
