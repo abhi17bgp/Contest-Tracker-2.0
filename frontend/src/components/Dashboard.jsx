@@ -283,35 +283,35 @@ const Dashboard = () => {
         switch (status) {
             case 'Ongoing':
                 return {
-                    bg: 'bg-emerald-50',
-                    border: 'border-emerald-200',
+                    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+                    border: 'border-emerald-200 dark:border-emerald-800/50',
                     badge: 'bg-emerald-500',
-                    text: 'text-emerald-700',
-                    accent: 'text-emerald-500'
+                    text: 'text-emerald-700 dark:text-emerald-300',
+                    accent: 'text-emerald-500 dark:text-emerald-400'
                 };
             case 'Starting Soon':
                 return {
-                    bg: 'bg-amber-50',
-                    border: 'border-amber-200',
+                    bg: 'bg-amber-50 dark:bg-amber-900/20',
+                    border: 'border-amber-200 dark:border-amber-800/50',
                     badge: 'bg-amber-500',
-                    text: 'text-amber-700',
-                    accent: 'text-amber-500'
+                    text: 'text-amber-700 dark:text-amber-300',
+                    accent: 'text-amber-500 dark:text-amber-400'
                 };
             case 'Completed':
                 return {
-                    bg: 'bg-gray-50',
-                    border: 'border-gray-200',
-                    badge: 'bg-gray-400',
-                    text: 'text-gray-500',
-                    accent: 'text-gray-400'
+                    bg: 'bg-gray-50 dark:bg-slate-800/50',
+                    border: 'border-gray-200 dark:border-slate-700',
+                    badge: 'bg-gray-400 dark:bg-slate-600',
+                    text: 'text-gray-500 dark:text-slate-400',
+                    accent: 'text-gray-400 dark:text-slate-500'
                 };
             default:
                 return {
-                    bg: 'bg-white',
-                    border: 'border-gray-200',
-                    badge: 'bg-blue-600',
-                    text: 'text-gray-700',
-                    accent: 'text-blue-500'
+                    bg: 'bg-white dark:bg-slate-800',
+                    border: 'border-gray-200 dark:border-slate-700',
+                    badge: 'bg-blue-600 dark:bg-blue-500',
+                    text: 'text-gray-700 dark:text-slate-200',
+                    accent: 'text-blue-500 dark:text-blue-400'
                 };
         }
     };
@@ -400,7 +400,7 @@ const Dashboard = () => {
     const todayQuote = PROGRAMMING_QUOTES[new Date().getDate() % PROGRAMMING_QUOTES.length];
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-12 transition-colors duration-200">
             <Header />
 
             {/* ── Push Notification Prompt Modal ── */}
@@ -516,14 +516,14 @@ const Dashboard = () => {
                     </div>
                 </div>
                 {!user?.isVerified ? (
-                    <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 rounded-2xl shadow-sm flex items-start" role="alert">
-                        <div className="bg-amber-100 p-2 rounded-xl mr-4 flex-shrink-0">
-                            <Bell className="w-6 h-6 text-amber-600" />
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 mb-8 rounded-2xl shadow-sm flex items-start" role="alert">
+                        <div className="bg-amber-100 dark:bg-amber-900/50 p-2 rounded-xl mr-4 flex-shrink-0">
+                            <Bell className="w-6 h-6 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-amber-900 text-base sm:text-lg tracking-tight">Email Verification Required</h3>
-                            <p className="text-amber-700 text-sm sm:text-base mt-1 leading-relaxed">
-                                Please verify your email to activate <span className="font-extrabold text-amber-900 bg-amber-500/20 px-2 py-0.5 rounded-md mx-0.5">automated 1-hour contest reminders</span>. Check your inbox (or spam) for the verification link.
+                            <h3 className="font-bold text-amber-900 dark:text-amber-100 text-base sm:text-lg tracking-tight">Email Verification Required</h3>
+                            <p className="text-amber-700 dark:text-amber-300 text-sm sm:text-base mt-1 leading-relaxed">
+                                Please verify your email to activate <span className="font-extrabold text-amber-900 dark:text-amber-100 bg-amber-500/20 px-2 py-0.5 rounded-md mx-0.5">automated 1-hour contest reminders</span>. Check your inbox (or spam) for the verification link.
                             </p>
                         </div>
                     </div>
@@ -555,13 +555,13 @@ const Dashboard = () => {
                 )}
 
                 {/* ── Today's Active Contests ── */}
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-5 sm:mb-6">
-                    <div className="p-4 sm:p-6 border-b border-gray-100 bg-gray-50 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="text-lg sm:text-2xl font-bold text-gray-800 flex items-center">
-                            <Activity className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden mb-5 sm:mb-6">
+                    <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50 flex flex-wrap items-center justify-between gap-2">
+                        <h2 className="text-lg sm:text-2xl font-bold text-gray-800 dark:text-slate-100 flex items-center">
+                            <Activity className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                             Today's Contests
                         </h2>
-                        <span className="bg-blue-100 text-blue-800 font-medium px-3 py-1 rounded-full text-xs sm:text-sm whitespace-nowrap">
+                        <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 font-medium px-3 py-1 rounded-full text-xs sm:text-sm whitespace-nowrap">
                             {new Date().toLocaleDateString(userLocale, { timeZone: userTimeZone, month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
                     </div>
@@ -595,20 +595,20 @@ const Dashboard = () => {
 
                 {/* ── Ended Today (collapsible) ── */}
                 {!loading && !error && endedContests.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-5 sm:mb-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden mb-5 sm:mb-6">
                         {/* Toggle Header */}
                         <button
                             onClick={() => setShowEnded(!showEnded)}
-                            className="w-full p-4 sm:p-5 flex flex-wrap items-center justify-between gap-2 text-left hover:bg-gray-50 transition-colors"
+                            className="w-full p-4 sm:p-5 flex flex-wrap items-center justify-between gap-2 text-left hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
                         >
-                            <span className="flex items-center text-base sm:text-lg font-semibold text-gray-500">
-                                <CheckCircle2 className="w-5 h-5 mr-2 text-gray-400 flex-shrink-0" />
+                            <span className="flex items-center text-base sm:text-lg font-semibold text-gray-500 dark:text-slate-400">
+                                <CheckCircle2 className="w-5 h-5 mr-2 text-gray-400 dark:text-slate-500 flex-shrink-0" />
                                 Ended Today
-                                <span className="ml-2 bg-gray-100 text-gray-500 text-xs font-bold px-2 py-0.5 rounded-full">
+                                <span className="ml-2 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-300 text-xs font-bold px-2 py-0.5 rounded-full">
                                     {endedContests.length}
                                 </span>
                             </span>
-                            <span className="flex items-center text-xs text-gray-400 font-medium">
+                            <span className="flex items-center text-xs text-gray-400 dark:text-slate-500 font-medium">
                                 {showEnded ? 'Hide' : 'Show'}
                                 <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-200 ${showEnded ? 'rotate-180' : ''}`} />
                             </span>
@@ -627,13 +627,13 @@ const Dashboard = () => {
 
                 {/* ── Upcoming (Future days) ── */}
                 {!loading && !error && upcomingContests.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                        <div className="p-4 sm:p-6 border-b border-gray-100 bg-gray-50 flex flex-wrap items-center justify-between gap-2">
-                            <h2 className="text-lg sm:text-2xl font-bold text-gray-800 flex items-center">
-                                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-indigo-600 flex-shrink-0" />
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden">
+                        <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50 flex flex-wrap items-center justify-between gap-2">
+                            <h2 className="text-lg sm:text-2xl font-bold text-gray-800 dark:text-slate-100 flex items-center">
+                                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                                 Upcoming Contests
                             </h2>
-                            <span className="bg-indigo-100 text-indigo-700 font-medium px-3 py-1 rounded-full text-xs sm:text-sm whitespace-nowrap">
+                            <span className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-medium px-3 py-1 rounded-full text-xs sm:text-sm whitespace-nowrap">
                                 Next 14 days
                             </span>
                         </div>

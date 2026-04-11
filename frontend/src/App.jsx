@@ -151,12 +151,14 @@ const PrivateRoute = ({ children }) => {
     return user ? children : <Navigate to="/login" />;
 };
 
+import { ThemeProvider, ThemeContext } from './context/ThemeContext';
 
-function App() {
-  return (
-    <AuthProvider>
+function AppContent() {
+    const { theme } = React.useContext(ThemeContext);
+
+    return (
         <Router>
-            <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+            <div className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-sans transition-colors duration-200">
                 <Routes>
                     <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                     <Route path="/login" element={<Login />} />
@@ -177,10 +179,19 @@ function App() {
               pauseOnFocusLoss
               draggable
               pauseOnHover
-              theme="light"
+              theme={theme === 'dark' ? 'dark' : 'light'}
             />
         </Router>
-    </AuthProvider>
+    );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
+    </ThemeProvider>
   );
 }
 

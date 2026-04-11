@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Trophy, LogOut, Trash2, AlertTriangle, X, User, ChevronDown, AlignLeft, Menu } from 'lucide-react';
+import { Trophy, LogOut, Trash2, AlertTriangle, X, User, ChevronDown, AlignLeft, Menu, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,6 +8,7 @@ import { toast } from 'react-toastify';
 
 const Header = () => {
   const { user, setUser, logout, API_URL } = useContext(AuthContext);
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,8 +76,16 @@ const Header = () => {
         
         {user && (
           <>
-            {/* Desktop: User Dropdown */}
+            {/* Desktop: Theme Toggle & User Dropdown */}
             <div className="hidden sm:flex items-center space-x-4">
+              <button
+                onClick={toggleTheme}
+                className="flex items-center justify-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg w-10 h-10 transition-all duration-200"
+                aria-label="Toggle dark mode"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-indigo-100" />}
+              </button>
+
               <div className="relative">
                 <button
                   onClick={() => setIsSettingsOpen(!isSettingsOpen)}
@@ -91,9 +101,9 @@ const Header = () => {
                 {isSettingsOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setIsSettingsOpen(false)}></div>
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 overflow-hidden">
-                      <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Account Settings</p>
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-100 dark:border-slate-700 py-2 z-50 overflow-hidden">
+                      <div className="px-4 py-3 bg-gray-50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700 mb-1">
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Account Settings</p>
                       </div>
                       
                       <button
@@ -102,9 +112,9 @@ const Header = () => {
                           setIsEditModalOpen(true);
                           setIsSettingsOpen(false);
                         }}
-                        className="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
-                        <User className="w-4 h-4 mr-3 text-blue-500" />
+                        <User className="w-4 h-4 mr-3 text-blue-500 dark:text-blue-400" />
                         Edit Profile
                       </button>
 
@@ -113,16 +123,16 @@ const Header = () => {
                           setIsModalOpen(true);
                           setIsSettingsOpen(false);
                         }}
-                        className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
                       >
                         <Trash2 className="w-4 h-4 mr-3" />
                         Delete Account
                       </button>
 
-                      <div className="border-t border-gray-100 mt-1 pt-1">
+                      <div className="border-t border-gray-100 dark:border-slate-700 mt-1 pt-1">
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                          className="w-full flex items-center px-4 py-2.5 text-sm text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
                         >
                           <LogOut className="w-4 h-4 mr-3" />
                           Sign Out
@@ -135,13 +145,23 @@ const Header = () => {
             </div>
 
             {/* Mobile: Hamburger Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="sm:hidden flex items-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg p-2 transition-all"
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            <div className="sm:hidden flex items-center space-x-2">
+              <button
+                onClick={toggleTheme}
+                className="flex items-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg p-2 transition-all"
+                aria-label="Toggle dark mode"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-indigo-100" />}
+              </button>
+
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="flex items-center bg-white/10 hover:bg-white/25 border border-white/30 rounded-lg p-2 transition-all"
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </>
         )}
       </div>

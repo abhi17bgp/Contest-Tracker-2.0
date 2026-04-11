@@ -37,7 +37,7 @@ const Login = () => {
     const cpIcons = [Terminal, Code, Laptop];
 
     return (
-        <div className="flex min-h-screen bg-gray-50 flex-col lg:flex-row">
+        <div className="flex min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-200 flex-col lg:flex-row">
             {/* Mobile Top Banner — visible only on small screens */}
             <div className="lg:hidden bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white px-5 pt-7 pb-6 flex flex-col items-center text-center relative overflow-hidden">
                 {/* Floating animation */}
@@ -184,32 +184,32 @@ const Login = () => {
             </div>
 
             {/* Right Side: Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-8 lg:p-8 bg-gray-50 relative z-20">
-                <div className="w-full max-w-md bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
+            <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-8 lg:p-8 bg-gray-50 dark:bg-slate-900 relative z-20 transition-colors duration-200">
+                <div className="w-full max-w-md bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700">
                     <div className="hidden lg:flex justify-center items-center mb-8">
-                        <Trophy className="w-16 h-16 text-blue-600 mr-3" />
-                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">Welcome Back</h2>
+                        <Trophy className="w-16 h-16 text-blue-600 dark:text-blue-400 mr-3" />
+                        <h2 className="text-4xl font-extrabold text-gray-900 dark:text-slate-100 tracking-tight">Welcome Back</h2>
                     </div>
-                    <h2 className="lg:hidden text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight text-center mb-6">Welcome Back</h2>
+                    <h2 className="lg:hidden text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-slate-100 tracking-tight text-center mb-6">Welcome Back</h2>
                     <form onSubmit={onSubmit} className="space-y-5">
                         <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                            <label className="block text-gray-700 dark:text-slate-300 text-sm font-bold mb-2">Email Address</label>
                             <input
                                 type="email"
                                 name="email"
                                 value={formData.email}
                                 onChange={onChange}
                                 required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 dark:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-700 text-gray-900 dark:text-slate-100"
                                 placeholder="Enter your email"
                             />
                         </div>
                         <div>
                             <div className="flex justify-between items-center mb-1">
-                                <label className="block text-gray-700 text-sm font-bold">Password</label>
-                                <Link to="/forgot-password" className="text-sm text-blue-600 font-medium hover:text-blue-800 transition-colors">Forgot Password?</Link>
+                                <label className="block text-gray-700 dark:text-slate-300 text-sm font-bold">Password</label>
+                                <Link to="/forgot-password" className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:text-blue-800 dark:hover:text-blue-300 transition-colors">Forgot Password?</Link>
                             </div>
-                            <p className="text-[10px] text-gray-400 mb-2 font-medium">✨ At least 6 characters long</p>
+                            <p className="text-[10px] text-gray-400 dark:text-slate-500 mb-2 font-medium">✨ At least 6 characters long</p>
                             <input
                                 type="password"
                                 name="password"
@@ -217,7 +217,7 @@ const Login = () => {
                                 onChange={onChange}
                                 required
                                 minLength="6"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50 dark:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-700 text-gray-900 dark:text-slate-100"
                                 placeholder="Enter your password"
                             />
                         </div>
@@ -239,8 +239,8 @@ const Login = () => {
                             )}
                         </button>
                     </form>
-                    <div className="mt-8 pt-6 border-t border-gray-100 text-center text-gray-600">
-                        <p>Don't have an account? <Link to="/register" className="text-blue-600 font-bold hover:underline">Register</Link></p>
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-slate-700 text-center text-gray-600 dark:text-slate-400">
+                        <p>Don't have an account? <Link to="/register" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">Register</Link></p>
                     </div>
                 </div>
             </div>
