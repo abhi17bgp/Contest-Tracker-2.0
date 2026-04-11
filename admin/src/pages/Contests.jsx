@@ -201,7 +201,7 @@ export default function Contests({ token }) {
             )}
 
             {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
+            <div className="stats-grid">
                 {[
                     { icon:'📅', label:'Total Contests', value: stats.total,    color:'#6366f1' },
                     { icon:'📧', label:'Email Sent',     value: stats.emailSent, color:'#10b981' },
