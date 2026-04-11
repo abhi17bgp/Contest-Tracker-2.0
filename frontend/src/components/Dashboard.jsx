@@ -163,8 +163,24 @@ const Dashboard = () => {
                 setIsPushEnabled(false);
                 toast.info(`${alertText} disabled.`);
             } else {
+                // ── Check current permission state FIRST ──────────────────
+                // If 'denied': Chrome won't show the prompt at all — guide user to fix it manually
+                if (Notification.permission === 'denied') {
+                    toast.error(
+                        '🚫 Notifications are blocked. To fix: click the 🔒 lock icon in Chrome\'s address bar → "Site settings" → "Notifications" → set to "Allow", then try again.',
+                        { autoClose: 12000 }
+                    );
+                    return;
+                }
+
                 const permission = await Notification.requestPermission();
-                if (permission !== 'granted') return toast.error('Permission denied. Please enable notifications in browser settings.');
+                if (permission !== 'granted') {
+                    toast.error(
+                        '🔔 Permission not granted. Click the 🔒 lock in the address bar → "Site settings" → "Notifications" → "Allow".',
+                        { autoClose: 10000 }
+                    );
+                    return;
+                }
 
                 // Optimistic update — show feedback instantly after permission is granted
                 setIsPushEnabled(true);
