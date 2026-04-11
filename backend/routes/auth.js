@@ -137,10 +137,22 @@ router.post('/verify-email', async (req, res) => {
                         }
 
                         if (pushPayload) {
+                            let validSubs = [];
                             for (const sub of user.pushSubscriptions) {
                                 try {
                                     await webpush.sendNotification(sub, pushPayload);
-                                } catch (e) { /* expired sub, ignore */ }
+                                    validSubs.push(sub);
+                                } catch (e) {
+                                    if (e.statusCode === 410 || e.statusCode === 404) {
+                                        console.log(`[VERIFY] Removed expired push subscription for ${user.email}`);
+                                    } else {
+                                        validSubs.push(sub);
+                                    }
+                                }
+                            }
+                            if (validSubs.length !== user.pushSubscriptions.length) {
+                                user.pushSubscriptions = validSubs;
+                                await user.save();
                             }
                             console.log(`[VERIFY] Sent catch-up PUSH to ${user.email} for ${contest.name}`);
                         }

@@ -153,12 +153,22 @@ const checkAndSendReminders = async () => {
                                 icon: getPlatformIcon(contest.platform)
                             });
 
+                            let validSubs = [];
                             for (const sub of user.pushSubscriptions) {
                                 try {
                                     await webpush.sendNotification(sub, payload);
+                                    validSubs.push(sub);
                                 } catch (e) {
-                                    // Subscription expired
+                                    if (e.statusCode === 410 || e.statusCode === 404) {
+                                        console.log(`[CRON] Removed expired push subscription for ${user.email}`);
+                                    } else {
+                                        validSubs.push(sub);
+                                    }
                                 }
+                            }
+                            if (validSubs.length !== user.pushSubscriptions.length) {
+                                user.pushSubscriptions = validSubs;
+                                await user.save();
                             }
                         }
                     }
@@ -178,12 +188,22 @@ const checkAndSendReminders = async () => {
                                 icon: getPlatformIcon(contest.platform)
                             });
 
+                            let validSubs = [];
                             for (const sub of user.pushSubscriptions) {
                                 try {
                                     await webpush.sendNotification(sub, payload);
+                                    validSubs.push(sub);
                                 } catch (e) {
-                                    // Subscription expired
+                                    if (e.statusCode === 410 || e.statusCode === 404) {
+                                        console.log(`[CRON] Removed expired push subscription for ${user.email}`);
+                                    } else {
+                                        validSubs.push(sub);
+                                    }
                                 }
+                            }
+                            if (validSubs.length !== user.pushSubscriptions.length) {
+                                user.pushSubscriptions = validSubs;
+                                await user.save();
                             }
                         }
                     }
