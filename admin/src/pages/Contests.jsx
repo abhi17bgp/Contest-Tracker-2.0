@@ -4,7 +4,7 @@ import axios from 'axios';
 const API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api/v1';
 const authHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
 
-const PLATFORMS = ['Codeforces', 'LeetCode', 'CodeChef', 'AtCoder', 'GeeksforGeeks'];
+const PLATFORMS = ['Codeforces', 'LeetCode', 'CodeChef', 'AtCoder', 'GeeksforGeeks', 'Custom'];
 
 const platformColor = (p = '') => {
     const pl = p.toLowerCase();
@@ -22,7 +22,7 @@ const fmtDuration = (s) => {
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
 };
 
-const EMPTY_FORM = { name: '', platform: 'Codeforces', startTime: '', durationHours: '', durationMins: '', url: '' };
+const EMPTY_FORM = { name: '', platform: 'Codeforces', customPlatform: '', startTime: '', durationHours: '', durationMins: '', url: '' };
 
 export default function Contests({ token }) {
     const [contests, setContests] = useState([]);
@@ -32,21 +32,31 @@ export default function Contests({ token }) {
     const [search, setSearch] = useState('');
     const [toDelete, setToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
-    const [editTarget, setEditTarget] = useState(null);   // null = closed, {} = add, {_id,...} = edit
+    const [editTarget, setEditTarget] = useState(null);
     const [form, setForm] = useState(EMPTY_FORM);
     const [saving, setSaving] = useState(false);
     const [syncMsg, setSyncMsg] = useState('');
+    const [resetTarget, setResetTarget] = useState(null);  // contest to reset
+    const [resetFlags, setResetFlags] = useState({ notified: false, pushNotified: false, finalPushNotified: false });
+    const [resetting, setResetting] = useState(false);
+    const [lastRefreshed, setLastRefreshed] = useState(null);
 
-    const fetchContests = async () => {
-        setLoading(true);
+    const fetchContests = async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             const res = await axios.get(`${API}/admin/contests`, authHeader(token));
             setContests(res.data);
+            setLastRefreshed(new Date());
         } catch { /* silent */ }
-        finally { setLoading(false); }
+        finally { if (!silent) setLoading(false); }
     };
 
-    useEffect(() => { fetchContests(); }, []);
+    useEffect(() => {
+        fetchContests();
+        // Auto-refresh every 30s to pick up cron flag changes
+        const interval = setInterval(() => fetchContests(true), 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const filtered = useMemo(() => {
         let list = contests;
@@ -80,10 +90,12 @@ export default function Contests({ token }) {
     const openEdit = (c) => {
         const dt = new Date(c.startTime);
         const pad = n => String(n).padStart(2, '0');
+        const isKnown = PLATFORMS.slice(0, -1).includes(c.platform); // exclude 'Custom'
         const localStr = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
         setForm({
             name: c.name,
-            platform: c.platform,
+            platform: isKnown ? c.platform : 'Custom',
+            customPlatform: isKnown ? '' : c.platform,
             startTime: localStr,
             durationHours: String(Math.floor(c.duration / 3600)),
             durationMins: String(Math.floor((c.duration % 3600) / 60)),
@@ -96,9 +108,10 @@ export default function Contests({ token }) {
         e.preventDefault();
         setSaving(true);
         const durationSecs = (parseInt(form.durationHours || 0) * 3600) + (parseInt(form.durationMins || 0) * 60);
+        const resolvedPlatform = form.platform === 'Custom' ? (form.customPlatform.trim() || 'Custom') : form.platform;
         const payload = {
             name: form.name.trim(),
-            platform: form.platform,
+            platform: resolvedPlatform,
             startTime: new Date(form.startTime).toISOString(),
             duration: durationSecs,
             url: form.url.trim(),
@@ -117,13 +130,26 @@ export default function Contests({ token }) {
         } finally { setSaving(false); }
     };
 
-    const handleResetFlags = async (c) => {
+    const openResetModal = (c) => {
+        setResetTarget(c);
+        setResetFlags({ notified: false, pushNotified: false, finalPushNotified: false });
+    };
+
+    const handleResetFlags = async () => {
+        if (!resetTarget) return;
+        setResetting(true);
         try {
-            const res = await axios.put(`${API}/admin/contests/${c._id}`,
-                { ...c, notified: false, pushNotified: false, finalPushNotified: false },
+            const patch = {};
+            if (resetFlags.notified)          patch.notified          = false;
+            if (resetFlags.pushNotified)      patch.pushNotified      = false;
+            if (resetFlags.finalPushNotified) patch.finalPushNotified = false;
+            const res = await axios.put(`${API}/admin/contests/${resetTarget._id}`,
+                { ...resetTarget, ...patch },
                 authHeader(token));
-            setContests(prev => prev.map(x => x._id === c._id ? res.data : x));
+            setContests(prev => prev.map(x => x._id === resetTarget._id ? res.data : x));
+            setResetTarget(null);
         } catch { /* silent */ }
+        finally { setResetting(false); }
     };
 
     const handleDelete = async () => {
@@ -151,8 +177,13 @@ export default function Contests({ token }) {
                     <div className="page-title">Contests</div>
                     <div className="page-sub">Manage the 14-day contest schedule</div>
                 </div>
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    <button className="btn btn-ghost" onClick={fetchContests}>🔄 Refresh</button>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                    {lastRefreshed && (
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                            Last updated: {lastRefreshed.toLocaleTimeString()} · auto-refreshes every 30s
+                        </span>
+                    )}
+                    <button className="btn btn-ghost" onClick={() => fetchContests()}>🔄 Refresh</button>
                     <button className="btn btn-warn" onClick={handleSync} disabled={syncing}>
                         {syncing ? <><div className="spinner" style={{ width:14, height:14 }} /> Syncing…</> : '⚡ Sync from CLIST'}
                     </button>
@@ -193,7 +224,7 @@ export default function Contests({ token }) {
                     <input className="input" placeholder="Search contests…" value={search} onChange={e => setSearch(e.target.value)} />
                 </div>
                 <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
-                    {['All', ...PLATFORMS].map(p => (
+                    {['All', 'Codeforces', 'LeetCode', 'CodeChef', 'AtCoder', 'GeeksforGeeks'].map(p => (
                         <button key={p} onClick={() => setFilter(p)}
                             className={`btn ${filter === p ? 'btn-primary' : 'btn-ghost'}`}
                             style={{ fontSize: 11, padding: '5px 12px' }}>
@@ -251,8 +282,8 @@ export default function Contests({ token }) {
                                                 <button className="btn btn-ghost" style={{ fontSize:11, padding:'5px 10px' }}
                                                     onClick={() => openEdit(c)}>✏️ Edit</button>
                                                 <button className="btn btn-warn" style={{ fontSize:11, padding:'5px 10px' }}
-                                                    onClick={() => handleResetFlags(c)}
-                                                    title="Reset all notification flags">↺</button>
+                                                    onClick={() => openResetModal(c)}
+                                                    title="Reset notification flags">↺ Reset</button>
                                                 <button className="btn btn-danger" style={{ fontSize:11, padding:'5px 10px' }}
                                                     onClick={() => setToDelete(c)}>🗑</button>
                                             </div>
@@ -280,10 +311,25 @@ export default function Contests({ token }) {
                             <div>
                                 <label>Platform</label>
                                 <select className="select" value={form.platform}
-                                    onChange={e => setForm({...form, platform: e.target.value})}>
-                                    {PLATFORMS.map(p => <option key={p}>{p}</option>)}
+                                    onChange={e => setForm({...form, platform: e.target.value, customPlatform: ''})}>
+                                    {PLATFORMS.map(p => <option key={p} value={p}>{p === 'Custom' ? '✏️ Custom (type below)' : p}</option>)}
                                 </select>
                             </div>
+
+                            {/* Custom platform name input — only shown when 'Custom' is selected */}
+                            {form.platform === 'Custom' && (
+                                <div>
+                                    <label>Custom Platform Name</label>
+                                    <input
+                                        className="input"
+                                        required
+                                        placeholder="e.g. My Platform, HackerCup, …"
+                                        value={form.customPlatform}
+                                        onChange={e => setForm({...form, customPlatform: e.target.value})}
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
                             <div>
                                 <label>Start Time (your local time)</label>
                                 <input className="input" type="datetime-local" required value={form.startTime}
@@ -315,6 +361,54 @@ export default function Contests({ token }) {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Reset Flags Modal */}
+            {resetTarget && (
+                <div className="modal-overlay" onClick={() => setResetTarget(null)}>
+                    <div className="modal modal-anim" style={{ maxWidth: 400 }} onClick={e => e.stopPropagation()}>
+                        <div className="modal-title">↺ Reset Notification Flags</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+                            Choose which flags to reset for:
+                            <strong style={{ color: 'var(--text)', display: 'block', marginTop: 4 }}>{resetTarget.name}</strong>
+                        </div>
+
+                        {/* Checkboxes */}
+                        {[
+                            { key: 'notified',          label: '📧 Email (1-hour reminder)',     color: '#10b981' },
+                            { key: 'pushNotified',      label: '🔥 Push (15-min alert)',         color: '#f59e0b' },
+                            { key: 'finalPushNotified', label: '🚨 Final Push (5-min alert)',    color: '#ef4444' },
+                        ].map(({ key, label, color }) => (
+                            <label key={key} style={{
+                                display: 'flex', alignItems: 'center', gap: 12,
+                                padding: '12px 14px', borderRadius: 10, marginBottom: 8, cursor: 'pointer',
+                                background: resetFlags[key] ? color + '18' : 'rgba(255,255,255,0.04)',
+                                border: `1px solid ${resetFlags[key] ? color + '40' : 'var(--border)'}`,
+                                transition: 'all 0.15s',
+                                textTransform: 'none', fontSize: 13, fontWeight: 600, letterSpacing: 0, color: 'var(--text)',
+                            }}>
+                                <input type="checkbox" checked={resetFlags[key]}
+                                    onChange={() => setResetFlags(prev => ({ ...prev, [key]: !prev[key] }))}
+                                    style={{ width: 16, height: 16, accentColor: color, cursor: 'pointer' }} />
+                                {label}
+                                {resetTarget[key] && (
+                                    <span className="badge badge-success" style={{ marginLeft: 'auto', fontSize: 10 }}>currently sent</span>
+                                )}
+                            </label>
+                        ))}
+
+                        <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+                            <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }}
+                                onClick={() => setResetTarget(null)}>Cancel</button>
+                            <button className="btn btn-warn" style={{ flex: 1, justifyContent: 'center' }}
+                                onClick={handleResetFlags} disabled={resetting || !Object.values(resetFlags).some(Boolean)}>
+                                {resetting
+                                    ? <div className="spinner" style={{ width: 14, height: 14 }} />
+                                    : `↺ Reset ${Object.values(resetFlags).filter(Boolean).length} flag(s)`}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
