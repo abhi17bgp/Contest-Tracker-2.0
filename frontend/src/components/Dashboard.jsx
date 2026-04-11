@@ -338,14 +338,14 @@ const Dashboard = () => {
                     </span>
                 </div>
 
-                <h3 className={`font-black text-lg sm:text-xl leading-tight mb-4 line-clamp-2 min-h-[3.5rem] ${isCompleted ? 'text-gray-400' : 'text-gray-900'}`} title={contest.name}>
+                <h3 className={`font-black text-lg sm:text-xl leading-tight mb-4 line-clamp-2 min-h-[3.5rem] ${isCompleted ? 'text-gray-400 dark:text-slate-500' : 'text-gray-900 dark:text-white'}`} title={contest.name}>
                     {contest.name}
                 </h3>
 
                 <div className="space-y-2 sm:space-y-3 mb-5">
-                    <div className="flex items-center text-xs sm:text-sm font-bold bg-black/5 p-2.5 sm:p-3 rounded-xl transition-colors group-hover:bg-black/10">
+                    <div className="flex items-center text-xs sm:text-sm font-bold bg-black/5 dark:bg-white/5 p-2.5 sm:p-3 rounded-xl transition-colors group-hover:bg-black/10 dark:group-hover:bg-white/10">
                         <Clock className={`w-4 h-4 mr-2 flex-shrink-0 ${styles.accent}`} />
-                        <span className="text-gray-700 leading-snug">
+                        <span className="text-gray-700 dark:text-slate-300 leading-snug">
                             {new Date(contest.startTime).toLocaleString(userLocale, {
                                 timeZone: userTimeZone,
                                 month: 'short',
@@ -357,9 +357,9 @@ const Dashboard = () => {
                             })}
                         </span>
                     </div>
-                    <div className="flex items-center text-xs sm:text-sm font-bold bg-black/5 p-2.5 sm:p-3 rounded-xl transition-colors group-hover:bg-black/10">
-                        <Activity className={`w-4 h-4 mr-2 flex-shrink-0 text-indigo-500`} />
-                        <span className="text-gray-700">Duration: {formatDuration(contest.duration)}</span>
+                    <div className="flex items-center text-xs sm:text-sm font-bold bg-black/5 dark:bg-white/5 p-2.5 sm:p-3 rounded-xl transition-colors group-hover:bg-black/10 dark:group-hover:bg-white/10">
+                        <Activity className={`w-4 h-4 mr-2 flex-shrink-0 text-indigo-500 dark:text-indigo-400`} />
+                        <span className="text-gray-700 dark:text-slate-300">Duration: {formatDuration(contest.duration)}</span>
                     </div>
                 </div>
 
@@ -367,9 +367,9 @@ const Dashboard = () => {
                     href={isCompleted ? undefined : contest.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`mt-auto block w-full text-center font-black py-3 sm:py-4 rounded-xl transition-all flex justify-center items-center shadow-lg shadow-black/5 hover:shadow-xl active:scale-95 ${isCompleted
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-gray-900 hover:bg-blue-600 text-white'
+                    className={`mt-auto block w-full text-center font-black py-3 sm:py-4 rounded-xl transition-all flex justify-center items-center shadow-lg shadow-black/5 dark:shadow-black/20 hover:shadow-xl active:scale-95 ${isCompleted
+                            ? 'bg-gray-200 dark:bg-slate-700 text-gray-400 dark:text-slate-400 cursor-not-allowed'
+                            : 'bg-gray-900 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white'
                         }`}
                 >
                     {!isCompleted && <ExternalLink className="w-4 h-4 mr-2" />}
