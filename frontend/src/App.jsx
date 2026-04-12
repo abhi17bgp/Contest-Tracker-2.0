@@ -4,12 +4,12 @@ import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import VerifyEmail from './components/auth/VerifyEmail';
-import ForgotPassword from './components/auth/ForgotPassword';
-import ResetPassword from './components/auth/ResetPassword';
-import Dashboard from './components/Dashboard';
+const Login = React.lazy(() => import('./components/auth/Login'));
+const Register = React.lazy(() => import('./components/auth/Register'));
+const VerifyEmail = React.lazy(() => import('./components/auth/VerifyEmail'));
+const ForgotPassword = React.lazy(() => import('./components/auth/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('./components/auth/ResetPassword'));
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
 
 const SplashScreen = () => {
     const platforms = ['Codeforces', 'LeetCode', 'CodeChef', 'AtCoder', 'GeeksforGeeks'];
@@ -159,14 +159,16 @@ function AppContent() {
     return (
         <Router>
             <div className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-sans transition-colors duration-200">
-                <Routes>
-                    <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/verify-email" element={<VerifyEmail />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                </Routes>
+                <React.Suspense fallback={<SplashScreen />}>
+                    <Routes>
+                        <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/verify-email" element={<VerifyEmail />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
+                    </Routes>
+                </React.Suspense>
             </div>
             
             <ToastContainer
