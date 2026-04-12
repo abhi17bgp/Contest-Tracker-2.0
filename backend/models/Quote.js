@@ -22,6 +22,10 @@ const QuoteSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending'
+    },
+    featuredDate: {
+        type: String, // format: "YYYY-MM-DD"
+        default: null
     }
 }, { timestamps: true });
 

@@ -147,6 +147,12 @@ router.post('/sync', adminProtect, async (req, res) => {
 
 // ── Quotes ────────────────────────────────────────────────────────────────────
 
+// Helper to get today's date string in IST (Indian Standard Time +05:30)
+const getTodayString = () => {
+    const today = new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000);
+    return today.toISOString().split('T')[0];
+};
+
 // GET all quotes
 router.get('/quotes', adminProtect, async (req, res) => {
     try {
@@ -182,6 +188,28 @@ router.delete('/quotes/:id', adminProtect, async (req, res) => {
         res.json({ success: true, message: 'Quote deleted' });
     } catch (err) {
         res.status(500).json({ message: 'Server error deleting quote' });
+    }
+});
+
+// POST pin quote of the day
+router.post('/quotes/:id/pin', adminProtect, async (req, res) => {
+    try {
+        const today = getTodayString();
+        
+        // Remove featuredDate from any existing quotes for today
+        await Quote.updateMany({ featuredDate: today }, { $set: { featuredDate: null } });
+
+        // Force this quote to be approved and set its featuredDate to today
+        const quote = await Quote.findByIdAndUpdate(
+            req.params.id, 
+            { featuredDate: today, status: 'approved' }, 
+            { new: true }
+        ).populate('submittedBy', 'name email');
+        
+        if (!quote) return res.status(404).json({ message: 'Quote not found' });
+        res.json(quote);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error pinning quote' });
     }
 });
 

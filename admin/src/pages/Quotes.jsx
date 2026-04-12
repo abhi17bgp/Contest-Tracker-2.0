@@ -13,6 +13,9 @@ export default function Quotes({ token }) {
     const [toDelete, setToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
     
+    // Pinning
+    const [pinningId, setPinningId] = useState(null);
+
     const [editing, setEditing] = useState(null);
     const [editForm, setEditForm] = useState({ text: '', author: '', status: '' });
     const [saving, setSaving] = useState(false);
@@ -55,6 +58,25 @@ export default function Quotes({ token }) {
             setToDelete(null);
         } catch { /* silent */ }
         finally { setDeleting(false); }
+    };
+
+    const handlePin = async (quote) => {
+        setPinningId(quote._id);
+        try {
+            const res = await axios.post(`${API}/admin/quotes/${quote._id}/pin`, {}, authHeader(token));
+            // res.data is the newly pinned quote. 
+            // We need to locally clear featuredDate for any others and apply it to this one.
+            const today = new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000).toISOString().split('T')[0];
+            setQuotes(prev => prev.map(q => {
+                if (q._id === res.data._id) return { ...q, ...res.data };
+                if (q.featuredDate === today) return { ...q, featuredDate: null };
+                return q;
+            }));
+        } catch (e) {
+            console.error('Failed to pin quote', e);
+        } finally {
+            setPinningId(null);
+        }
     };
 
     const handleEditSave = async () => {
@@ -131,15 +153,26 @@ export default function Quotes({ token }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(q => (
+                            {filtered.map(q => {
+                                const todayStr = new Date(new Date().getTime() + 5.5 * 60 * 60 * 1000).toISOString().split('T')[0];
+                                const isPinnedToday = q.featuredDate === todayStr;
+                                
+                                return (
                                 <tr key={q._id}>
                                     <td>
-                                        <span className={`badge ${
-                                            q.status === 'approved' ? 'badge-success' : 
-                                            q.status === 'rejected' ? 'badge-danger' : 'badge-warn'
-                                        }`}>
-                                            {q.status.charAt(0).toUpperCase() + q.status.slice(1)}
-                                        </span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                                            <span className={`badge ${
+                                                q.status === 'approved' ? 'badge-success' : 
+                                                q.status === 'rejected' ? 'badge-danger' : 'badge-warn'
+                                            }`}>
+                                                {q.status.charAt(0).toUpperCase() + q.status.slice(1)}
+                                            </span>
+                                            {isPinnedToday && (
+                                                <span className="badge" style={{ background: '#ec489920', color: '#ec4899', border: '1px solid #ec489944' }}>
+                                                    📌 Pinned Today
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td>
                                         <div style={{ fontSize: 13, fontWeight: 500, lineHeight: 1.4, wordBreak: 'break-word' }}>
@@ -161,7 +194,17 @@ export default function Quotes({ token }) {
                                         {new Date(q.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}
                                     </td>
                                     <td>
-                                        <div style={{ display: 'flex', gap: 8 }}>
+                                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                            {!isPinnedToday && (
+                                                <button
+                                                    className="btn btn-ghost"
+                                                    style={{ fontSize: 12, padding: '6px 12px', background: '#ec489910', color: '#ec4899', border: '1px solid #ec489930' }}
+                                                    onClick={() => handlePin(q)}
+                                                    disabled={pinningId === q._id}
+                                                >
+                                                    {pinningId === q._id ? '...' : '📌 Pin'}
+                                                </button>
+                                            )}
                                             <button
                                                 className="btn btn-primary"
                                                 style={{ fontSize: 12, padding: '6px 12px' }}
@@ -175,7 +218,8 @@ export default function Quotes({ token }) {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
                     </table>
                 )}
