@@ -209,7 +209,7 @@ const Login = () => {
                                 <label className="block text-gray-700 dark:text-slate-300 text-sm font-bold">Password</label>
                                 <Link to="/forgot-password" className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:text-blue-800 dark:hover:text-blue-300 transition-colors">Forgot Password?</Link>
                             </div>
-                            <p className="text-[10px] text-gray-400 dark:text-slate-500 mb-2 font-medium">✨ At least 6 characters long</p>
+                            <p className="text-[10px] text-gray-400 dark:text-slate-500 mb-2 font-medium"> At least 6 characters long</p>
                             <input
                                 type="password"
                                 name="password"
