@@ -6,6 +6,7 @@ const { initScheduler, fetchAndSyncDailyContests } = require('./cron/scheduler')
 const { authRouter } = require('./routes/auth');
 const contestRouter = require('./routes/contests');
 const adminRouter = require('./routes/admin');
+const quoteRouter = require('./routes/quotes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get('/api/health', (req, res) => res.status(200).json({ status: 'API is runn
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/contests', contestRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/quotes', quoteRouter);
 app.get('/api/v1/health', (req, res) => res.status(200).json({
     status: 'healthy',
     uptime: process.uptime(),

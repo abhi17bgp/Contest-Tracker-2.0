@@ -3,12 +3,14 @@ import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate, useLocati
 import Login from './pages/Login.jsx';
 import Users from './pages/Users.jsx';
 import Contests from './pages/Contests.jsx';
+import Quotes from './pages/Quotes.jsx';
 
 const Sidebar = ({ onLogout, open, onClose }) => {
     const location = useLocation();
     const nav = [
         { to: '/users',    icon: '👥', label: 'Users' },
         { to: '/contests', icon: '🏆', label: 'Contests' },
+        { to: '/quotes',   icon: '💭', label: 'Quotes' },
     ];
 
     return (
@@ -79,7 +81,9 @@ const Layout = ({ onLogout, children }) => {
     const location = useLocation();
 
     // Get current page title for mobile header
-    const pageTitle = location.pathname.includes('users') ? 'Users' : 'Contests';
+    const pageTitle = location.pathname.includes('users') ? 'Users' 
+                    : location.pathname.includes('quotes') ? 'Quotes' 
+                    : 'Contests';
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -127,6 +131,11 @@ export default function App() {
                 <Route path="/contests" element={
                     <PrivateRoute token={token}>
                         <Layout onLogout={handleLogout}><Contests token={token} /></Layout>
+                    </PrivateRoute>
+                } />
+                <Route path="/quotes" element={
+                    <PrivateRoute token={token}>
+                        <Layout onLogout={handleLogout}><Quotes token={token} /></Layout>
                     </PrivateRoute>
                 } />
                 <Route path="*" element={<Navigate to={token ? '/users' : '/login'} replace />} />

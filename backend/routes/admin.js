@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Contest = require('../models/Contest');
+const Quote = require('../models/Quote');
 const { fetchAndSyncDailyContests } = require('../cron/scheduler');
 
 // ── Admin JWT Middleware ──────────────────────────────────────────────────────
@@ -141,6 +142,46 @@ router.post('/sync', adminProtect, async (req, res) => {
         res.json({ success: true, message: 'Contests synced from CLIST API successfully.' });
     } catch (err) {
         res.status(500).json({ message: 'Sync failed: ' + err.message });
+    }
+});
+
+// ── Quotes ────────────────────────────────────────────────────────────────────
+
+// GET all quotes
+router.get('/quotes', adminProtect, async (req, res) => {
+    try {
+        const quotes = await Quote.find().populate('submittedBy', 'name email').sort({ createdAt: -1 });
+        res.json(quotes);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error fetching quotes' });
+    }
+});
+
+// PUT update quote (approve, reject, edit)
+router.put('/quotes/:id', adminProtect, async (req, res) => {
+    try {
+        const { text, author, status } = req.body;
+        const update = {};
+        if (text) update.text = text;
+        if (author) update.author = author;
+        if (status) update.status = status;
+
+        const quote = await Quote.findByIdAndUpdate(req.params.id, update, { new: true });
+        if (!quote) return res.status(404).json({ message: 'Quote not found' });
+        res.json(quote);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error updating quote' });
+    }
+});
+
+// DELETE quote
+router.delete('/quotes/:id', adminProtect, async (req, res) => {
+    try {
+        const deleted = await Quote.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ message: 'Quote not found' });
+        res.json({ success: true, message: 'Quote deleted' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error deleting quote' });
     }
 });
 
