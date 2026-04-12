@@ -528,14 +528,14 @@ const Dashboard = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 mb-8 rounded-2xl shadow-sm flex items-start" role="alert">
-                        <div className="bg-emerald-100 p-2 rounded-xl mr-4 flex-shrink-0">
-                            <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                    <div className="bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-emerald-500 p-4 mb-8 rounded-2xl shadow-sm flex items-start" role="alert">
+                        <div className="bg-emerald-100 dark:bg-emerald-900/50 p-2 rounded-xl mr-4 flex-shrink-0">
+                            <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-emerald-900 text-base sm:text-lg tracking-tight">Notifications Active</h3>
-                            <p className="text-emerald-700 text-sm sm:text-base mt-1 leading-relaxed">
-                                You are all set! You will receive automated emails <span className="font-extrabold text-emerald-900 bg-emerald-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hour before</span> any contest starts. Good luck with your coding!
+                            <h3 className="font-bold text-emerald-900 dark:text-emerald-100 text-base sm:text-lg tracking-tight">Notifications Active</h3>
+                            <p className="text-emerald-700 dark:text-emerald-300 text-sm sm:text-base mt-1 leading-relaxed">
+                                You are all set! You will receive automated emails <span className="font-extrabold text-emerald-900 dark:text-emerald-100 bg-emerald-500/20 px-2 py-0.5 rounded-md mx-0.5">1 hour before</span> any contest starts. Good luck with your coding!
                             </p>
                             <button
                                 onClick={handlePushToggle}
@@ -545,9 +545,9 @@ const Dashboard = () => {
                                 {isPushEnabled ? `Disable ${alertText}` : `Enable ${alertText}`}
                             </button>
                             {isBrave && !isPushEnabled && (
-                                <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-start">
+                                <p className="mt-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg px-3 py-2 flex items-start">
                                     <span className="mr-1.5 text-base">🦁</span>
-                                    <span><strong>Brave User?</strong> Go to <code className="bg-amber-100 px-1 rounded">brave://settings/privacy</code> → enable <strong>"Use Google services for push messaging"</strong> first.</span>
+                                    <span><strong>Brave User?</strong> Go to <code className="bg-amber-100 dark:bg-amber-900/50 px-1 rounded">brave://settings/privacy</code> → enable <strong>"Use Google services for push messaging"</strong> first.</span>
                                 </p>
                             )}
                         </div>

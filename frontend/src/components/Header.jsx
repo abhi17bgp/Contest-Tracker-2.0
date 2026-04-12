@@ -212,16 +212,16 @@ const Header = () => {
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onClick={() => setIsEditModalOpen(false)}></div>
-          <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+          <div className="relative bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
             <div className="p-6 sm:p-8">
               <div className="flex justify-between items-center mb-6 sm:mb-8">
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Profile</h3>
-                  <p className="text-gray-500 text-sm">Personalize your public profile</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</h3>
+                  <p className="text-gray-500 dark:text-slate-400 text-sm">Personalize your public profile</p>
                 </div>
                 <button 
                   onClick={() => setIsEditModalOpen(false)} 
-                  className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-all"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-white transition-all"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -230,26 +230,26 @@ const Header = () => {
               <form onSubmit={handleUpdateProfile} className="space-y-5">
                 {/* Email — read-only, shown for account identification */}
                 <div>
-                  <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1 flex justify-between">
-                    Email <span className="text-gray-400 font-normal normal-case italic">Cannot be changed</span>
+                  <label className="block text-gray-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider mb-2 ml-1 flex justify-between">
+                    Email <span className="text-gray-400 dark:text-slate-500 font-normal normal-case italic">Cannot be changed</span>
                   </label>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 dark:text-slate-600">
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     </div>
                     <input
                       type="email"
                       value={user?.email || ''}
                       disabled
-                      className="w-full pl-12 pr-4 py-3 bg-gray-100 border border-gray-100 rounded-2xl text-gray-400 font-medium cursor-not-allowed select-none"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-slate-700/50 border border-gray-100 dark:border-slate-700 rounded-2xl text-gray-400 dark:text-slate-500 font-medium cursor-not-allowed select-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Display Name</label>
+                  <label className="block text-gray-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Display Name</label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors">
                       <User className="w-5 h-5" />
                     </div>
                     <input
@@ -257,25 +257,25 @@ const Header = () => {
                       value={profileData.name}
                       onChange={(e) => setProfileData({...profileData, name: e.target.value})}
                       required
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-medium text-gray-900"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 dark:text-white"
                       placeholder="Your name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2 ml-1 flex justify-between">
-                    Bio <span className="text-gray-400 font-normal normal-case italic">(Optional)</span>
+                  <label className="block text-gray-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider mb-2 ml-1 flex justify-between">
+                    Bio <span className="text-gray-400 dark:text-slate-500 font-normal normal-case italic">(Optional)</span>
                   </label>
                   <div className="relative group">
-                    <div className="absolute left-4 top-4 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                    <div className="absolute left-4 top-4 text-gray-400 dark:text-slate-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors">
                       <AlignLeft className="w-5 h-5" />
                     </div>
                     <textarea
                       value={profileData.bio}
                       onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
                       rows="4"
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all resize-none font-medium text-gray-900"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none font-medium text-gray-900 dark:text-white"
                       placeholder="Tell the community a bit about yourself..."
                     />
                   </div>
@@ -285,14 +285,14 @@ const Header = () => {
                   <button
                     type="button"
                     onClick={() => setIsEditModalOpen(false)}
-                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 sm:py-4 rounded-2xl transition-all active:scale-95"
+                    className="w-full bg-gray-100 dark:bg-slate-700/50 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-white font-bold py-3 sm:py-4 rounded-2xl transition-all active:scale-95"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 rounded-2xl transition-all shadow-xl shadow-blue-600/20 dark:shadow-blue-900/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                   >
                     {isSaving ? 'Saving...' : 'Save Profile'}
                   </button>
@@ -311,30 +311,30 @@ const Header = () => {
             onClick={() => setIsModalOpen(false)}
           ></div>
           
-          <div className="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden">
+          <div className="relative bg-white dark:bg-slate-800 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden">
             <div className="p-6 sm:p-8">
-              <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-red-100 rounded-full mb-5 sm:mb-6">
-                <AlertTriangle className="w-8 h-8 sm:w-10 sm:h-10 text-red-600" />
+              <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full mb-5 sm:mb-6">
+                <AlertTriangle className="w-8 h-8 sm:w-10 sm:h-10 text-red-600 dark:text-red-400" />
               </div>
               
-              <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-900 mb-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">
                 Delete Account?
               </h3>
               
-              <p className="text-gray-500 text-center text-sm leading-relaxed mb-6 sm:mb-8">
+              <p className="text-gray-500 dark:text-slate-400 text-center text-sm leading-relaxed mb-6 sm:mb-8">
                 This action is permanent and will remove all your data. Are you sure you want to proceed?
               </p>
               
               <div className="flex flex-col space-y-3">
                 <button
                   onClick={confirmDelete}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 sm:py-4 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 sm:py-4 rounded-2xl transition-all shadow-xl shadow-red-600/20 dark:shadow-red-900/20 active:scale-95"
                 >
                   Yes, delete my account
                 </button>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 sm:py-4 rounded-2xl transition-all active:scale-95"
+                  className="w-full bg-gray-100 dark:bg-slate-700/50 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-800 dark:text-white font-bold py-3 sm:py-4 rounded-2xl transition-all active:scale-95"
                 >
                   Cancel
                 </button>
