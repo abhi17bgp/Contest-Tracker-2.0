@@ -27,6 +27,12 @@ export default function Users({ token }) {
     const [deleting, setDeleting] = useState(false);
     const [togglingId, setTogglingId] = useState(null);
 
+    // Broadcast Push State
+    const [broadcasting, setBroadcasting] = useState(false);
+    const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+    const [broadcastForm, setBroadcastForm] = useState({ title: '', message: '', url: 'https://smartpostai.online' });
+    const [broadcastResult, setBroadcastResult] = useState(null);
+
     const fetchUsers = async () => {
         setLoading(true);
         try {
@@ -69,6 +75,26 @@ export default function Users({ token }) {
         finally { setDeleting(false); }
     };
 
+    const handleBroadcast = async () => {
+        if (!broadcastForm.title || !broadcastForm.message) return;
+        setBroadcasting(true);
+        setBroadcastResult(null);
+        try {
+            const res = await axios.post(`${API}/admin/broadcast-push`, broadcastForm, authHeader(token));
+            setBroadcastResult(res.data.stats);
+            setTimeout(() => {
+                setShowBroadcastModal(false);
+                setBroadcastResult(null);
+                setBroadcastForm({ title: '', message: '', url: 'https://smartpostai.online' });
+            }, 3000);
+        } catch (e) {
+            console.error(e);
+            alert("Broadcast failed.");
+        } finally {
+            setBroadcasting(false);
+        }
+    };
+
     return (
         <div className="fade-up">
             {/* Page Header */}
@@ -77,7 +103,10 @@ export default function Users({ token }) {
                     <div className="page-title">Users</div>
                     <div className="page-sub">Manage all registered accounts</div>
                 </div>
-                <button className="btn btn-ghost" onClick={fetchUsers}>🔄 Refresh</button>
+                <div style={{ display: 'flex', gap: 10 }}>
+                    <button className="btn btn-primary" onClick={() => setShowBroadcastModal(true)}>📣 Broadcast Alert</button>
+                    <button className="btn btn-ghost" onClick={fetchUsers}>🔄 Refresh</button>
+                </div>
             </div>
 
             {/* Stats */}
@@ -190,6 +219,78 @@ export default function Users({ token }) {
                                 {deleting ? <div className="spinner" style={{ width:14, height:14 }} /> : 'Delete'}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Broadcast Modal */}
+            {showBroadcastModal && (
+                <div className="modal-overlay" onClick={() => !broadcasting && setShowBroadcastModal(false)}>
+                    <div className="confirm-modal modal-anim" style={{ maxWidth: 500, padding: 24, textAlign: 'left' }} onClick={e => e.stopPropagation()}>
+                        <h3 style={{ marginTop: 0, marginBottom: 8, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            📣 Broadcast Push Notification
+                        </h3>
+                        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
+                            Send an instant web push to ALL {stats.pushEnabled} subscribed users.
+                        </p>
+                        
+                        {broadcastResult ? (
+                            <div style={{ padding: 20, background: '#10b98120', borderRadius: 12, border: '1px solid #10b98150', textAlign: 'center' }}>
+                                <div style={{ fontSize: 32, marginBottom: 10 }}>✅</div>
+                                <div style={{ fontWeight: 700, color: '#10b981', marginBottom: 6 }}>Broadcast Successfully Sent!</div>
+                                <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                                    Reached {broadcastResult.sent} active devices.<br/>
+                                    Cleaned up {broadcastResult.cleaned} dead subscriptions.
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div style={{ marginBottom: 15 }}>
+                                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)' }}>TITLE</label>
+                                    <input 
+                                        className="input" 
+                                        style={{ width: '100%' }}
+                                        placeholder="E.g. System Maintenance"
+                                        value={broadcastForm.title}
+                                        onChange={e => setBroadcastForm({ ...broadcastForm, title: e.target.value })}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: 15 }}>
+                                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)' }}>MESSAGE</label>
+                                    <textarea 
+                                        className="input" 
+                                        style={{ width: '100%', minHeight: 80, resize: 'vertical' }}
+                                        placeholder="What do you want to say to your users?"
+                                        value={broadcastForm.message}
+                                        onChange={e => setBroadcastForm({ ...broadcastForm, message: e.target.value })}
+                                    />
+                                </div>
+
+                                <div style={{ marginBottom: 24 }}>
+                                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6, color: 'var(--text-muted)' }}>CLICK URL</label>
+                                    <input 
+                                        className="input" 
+                                        style={{ width: '100%' }}
+                                        placeholder="https://"
+                                        value={broadcastForm.url}
+                                        onChange={e => setBroadcastForm({ ...broadcastForm, url: e.target.value })}
+                                    />
+                                </div>
+
+                                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                                    <button className="btn btn-ghost" onClick={() => setShowBroadcastModal(false)}>Cancel</button>
+                                    <button 
+                                        className="btn btn-primary" 
+                                        onClick={handleBroadcast} 
+                                        disabled={broadcasting || !broadcastForm.title || !broadcastForm.message || stats.pushEnabled === 0}
+                                        style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                                    >
+                                        {broadcasting ? <div className="spinner" style={{ width:14, height:14 }} /> : 'Send Globally 🚀'}
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

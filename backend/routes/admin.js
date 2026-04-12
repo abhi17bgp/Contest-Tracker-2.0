@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Contest = require('../models/Contest');
 const Quote = require('../models/Quote');
+const webpush = require('web-push');
 const { fetchAndSyncDailyContests } = require('../cron/scheduler');
 
 // ── Admin JWT Middleware ──────────────────────────────────────────────────────
@@ -78,6 +79,71 @@ router.delete('/users/:id', adminProtect, async (req, res) => {
         res.json({ success: true, message: 'User deleted' });
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// ── Admin Broadcast Push ──────────────────────────────────────────────────────
+router.post('/broadcast-push', adminProtect, async (req, res) => {
+    try {
+        const { title, message, url, icon } = req.body;
+        
+        if (!title || !message) {
+            return res.status(400).json({ message: 'Title and message are required' });
+        }
+
+        webpush.setVapidDetails(
+            'mailto:alert@smartpostai.online',
+            process.env.VAPID_PUBLIC_KEY,
+            process.env.VAPID_PRIVATE_KEY
+        );
+
+        // Find all users who have at least one push subscription
+        const users = await User.find({ 'pushSubscriptions.0': { $exists: true } });
+        
+        let totalSent = 0;
+        let totalCleaned = 0;
+
+        const payload = JSON.stringify({
+            title,
+            body: message,
+            url: url || '/',
+            icon: icon || 'https://cdn-icons-png.flaticon.com/512/3112/3112946.png'
+        });
+
+        for (const user of users) {
+            let validSubs = [];
+            let changed = false;
+
+            for (const sub of user.pushSubscriptions) {
+                try {
+                    await webpush.sendNotification(sub, payload);
+                    validSubs.push(sub);
+                    totalSent++;
+                } catch (err) {
+                    if (err.statusCode === 410 || err.statusCode === 404) {
+                        // Subscription expired or unsubscribed
+                        changed = true;
+                        totalCleaned++;
+                    } else {
+                        validSubs.push(sub);
+                    }
+                }
+            }
+
+            if (changed) {
+                user.pushSubscriptions = validSubs;
+                await user.save();
+            }
+        }
+
+        res.json({ 
+            success: true, 
+            message: `Broadcast complete`,
+            stats: { sent: totalSent, cleaned: totalCleaned, usersReached: users.length }
+        });
+    } catch (err) {
+        console.error('Broadcast error:', err);
+        res.status(500).json({ message: 'Server error broadcasting push' });
     }
 });
 
