@@ -11,6 +11,13 @@ const ForgotPassword = React.lazy(() => import('./components/auth/ForgotPassword
 const ResetPassword = React.lazy(() => import('./components/auth/ResetPassword'));
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
 
+// SEO Pages
+const LeetCodeContests = React.lazy(() => import('./pages/seo/LeetCodeContests'));
+const CodeforcesContests = React.lazy(() => import('./pages/seo/CodeforcesContests'));
+const CodechefContests = React.lazy(() => import('./pages/seo/CodechefContests'));
+const BestCodingContests = React.lazy(() => import('./pages/seo/BestCodingContests'));
+const HowToNeverMissContests = React.lazy(() => import('./pages/seo/HowToNeverMissContests'));
+
 const SplashScreen = () => {
     const platforms = ['Codeforces', 'LeetCode', 'CodeChef', 'AtCoder', 'GeeksforGeeks'];
     const features = [
@@ -167,6 +174,11 @@ function AppContent() {
                         <Route path="/verify-email" element={<VerifyEmail />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/leetcode-contests" element={<LeetCodeContests />} />
+                        <Route path="/codeforces-contests" element={<CodeforcesContests />} />
+                        <Route path="/codechef-contests" element={<CodechefContests />} />
+                        <Route path="/best-coding-contests" element={<BestCodingContests />} />
+                        <Route path="/how-to-never-miss-contests" element={<HowToNeverMissContests />} />
                     </Routes>
                 </React.Suspense>
             </div>
@@ -187,13 +199,17 @@ function AppContent() {
     );
 }
 
+import { HelmetProvider } from 'react-helmet-async';
+
 function App() {
   return (
-    <ThemeProvider>
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider>
+          <AuthProvider>
+              <AppContent />
+          </AuthProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 

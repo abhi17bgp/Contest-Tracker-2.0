@@ -3,4 +3,19 @@
   <url>
     <loc>https://contesttracker.smartpostai.online/</loc>
   </url>
+  <url>
+    <loc>https://contesttracker.smartpostai.online/codeforces-contests</loc>
+  </url>
+  <url>
+    <loc>https://contesttracker.smartpostai.online/leetcode-contests</loc>
+  </url>
+  <url>
+    <loc>https://contesttracker.smartpostai.online/codechef-contests</loc>
+  </url>
+  <url>
+    <loc>https://contesttracker.smartpostai.online/best-coding-contests</loc>
+  </url>
+  <url>
+    <loc>https://contesttracker.smartpostai.online/how-to-never-miss-contests</loc>
+  </url>
 </urlset>
