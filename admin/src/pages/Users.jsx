@@ -148,6 +148,7 @@ export default function Users({ token }) {
                                 <th>#</th>
                                 <th>User</th>
                                 <th>Status</th>
+                                <th>Country</th>
                                 <th>Push Subs</th>
                                 <th>Joined</th>
                                 <th>Actions</th>
@@ -170,6 +171,11 @@ export default function Users({ token }) {
                                         <span className={`badge ${u.isVerified ? 'badge-success' : 'badge-warn'}`}>
                                             {u.isVerified ? '✅ Verified' : '⏳ Pending'}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <div style={{ fontSize: 13, fontWeight: 500 }}>
+                                            {u.country || 'Unknown'}
+                                        </div>
                                     </td>
                                     <td>
                                         <span className={`badge ${u.pushSubscriptions?.length ? 'badge-primary' : 'badge-gray'}`}>

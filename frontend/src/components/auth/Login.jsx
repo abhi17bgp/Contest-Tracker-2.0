@@ -20,8 +20,18 @@ const Login = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
+            let country = 'Unknown';
+            try {
+                const ipRes = await axios.get('https://ipapi.co/json/');
+                if (ipRes.data && ipRes.data.country_name) {
+                    country = ipRes.data.country_name;
+                }
+            } catch (err) {
+                // Silently ignore IP lookup failures
+            }
+
             const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-            const payload = { ...formData, timezone: userTimeZone };
+            const payload = { ...formData, timezone: userTimeZone, country };
             const res = await axios.post(`${API_URL}/auth/login`, payload);
             login(res.data.user, res.data.token);
             toast.success('Successfully logged in');

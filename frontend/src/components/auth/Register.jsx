@@ -27,12 +27,23 @@ const Register = () => {
 
         setIsLoading(true);
         try {
+            let country = 'Unknown';
+            try {
+                const ipRes = await axios.get('https://ipapi.co/json/');
+                if (ipRes.data && ipRes.data.country_name) {
+                    country = ipRes.data.country_name;
+                }
+            } catch (err) {
+                // Silently ignore IP lookup failures
+            }
+
             const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
             await axios.post(`${API_URL}/auth/register`, {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                timezone: userTimeZone
+                timezone: userTimeZone,
+                country
             });
             toast.success('Registration successful! Please check your email to verify your account.');
             navigate('/login');

@@ -30,7 +30,7 @@ const protect = (req, res, next) => {
 // @route   POST /api/v1/auth/register
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, timezone } = req.body;
+        const { name, email, password, timezone, country } = req.body;
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -51,7 +51,8 @@ router.post('/register', async (req, res) => {
             email,
             password: hashedPassword,
             verificationToken,
-            timezone: timezone || 'UTC'
+            timezone: timezone || 'UTC',
+            country: country || 'Unknown'
         });
 
         await sendVerificationEmail(user.name, user.email, verificationToken);
@@ -173,7 +174,7 @@ router.post('/verify-email', async (req, res) => {
 // @route   POST /api/v1/auth/login
 router.post('/login', async (req, res) => {
     try {
-        const { email, password, timezone } = req.body;
+        const { email, password, timezone, country } = req.body;
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -192,6 +193,12 @@ router.post('/login', async (req, res) => {
         // Silently update user's timezone if it has changed/was provided
         if (timezone && user.timezone !== timezone) {
             user.timezone = timezone;
+            await user.save();
+        }
+
+        // Silently update user's country if it has changed/was provided
+        if (country && user.country !== country) {
+            user.country = country;
             await user.save();
         }
 

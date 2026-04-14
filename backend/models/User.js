@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   pushSubscriptions: { type: Array, default: [] },
   verificationToken: { type: String },
   resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date }
+  resetPasswordExpires: { type: Date },
+  country: { type: String, default: 'Unknown' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
