@@ -4,10 +4,11 @@ import { AuthContext } from '../../context/AuthContext';
 import useContests from '../../hooks/useContests';
 import ContestCard from '../../components/dashboard/ContestCard';
 import Header from '../../components/Header';
-import { Calendar, Activity, CheckCircle2 } from 'lucide-react';
+import { Calendar, Activity, CheckCircle2, Link as LinkIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Footer from '../../components/Footer';
 
-const PlatformContests = ({ platformKey, pageTitle, metaDescription, h1, subtitle }) => {
+const PlatformContests = ({ platformKey, pageTitle, metaDescription, h1, subtitle, platformDescription, canonicalUrl }) => {
     const { API_URL } = useContext(AuthContext);
     const { allContests, activeContests, upcomingContests, endedContests, loading, error, currentTime, userTimeZone, userLocale } = useContests(API_URL);
 
@@ -23,6 +24,7 @@ const PlatformContests = ({ platformKey, pageTitle, metaDescription, h1, subtitl
             <Helmet>
                 <title>{pageTitle}</title>
                 <meta name="description" content={metaDescription} />
+                {canonicalUrl && <link rel="canonical" href={`https://contesttracker.smartpostai.online${canonicalUrl}`} />}
             </Helmet>
             
             <Header />
@@ -32,9 +34,17 @@ const PlatformContests = ({ platformKey, pageTitle, metaDescription, h1, subtitl
                     <h1 className="text-3xl sm:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
                         {h1}
                     </h1>
-                    <p className="text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
+                    <p className="text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto mb-6">
                         {subtitle}
                     </p>
+                    {platformDescription && (
+                        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 text-left max-w-4xl mx-auto">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">About {platformKey} Contests</h2>
+                            <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
+                                {platformDescription}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {loading ? (
@@ -72,7 +82,12 @@ const PlatformContests = ({ platformKey, pageTitle, metaDescription, h1, subtitl
                             </div>
                             <div className="p-4 sm:p-6">
                                 {upcoming.length === 0 ? (
-                                    <p className="text-gray-500 dark:text-slate-400 text-center py-8">No upcoming {platformKey} contests scheduled right now.</p>
+                                    <div className="text-center py-10 bg-gray-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Upcoming Contests Scheduled</h3>
+                                        <p className="text-gray-500 dark:text-slate-400 max-w-md mx-auto text-sm">
+                                            We couldn't find any upcoming {platformKey} contests at the moment. {platformKey} typically updates their schedule a few days in advance. In the meantime, you can check out contests on other platforms below or review recently ended matches.
+                                        </p>
+                                    </div>
                                 ) : (
                                     <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                         {upcoming.map(c => <ContestCard key={c._id} contest={c} currentTime={currentTime} userLocale={userLocale} userTimeZone={userTimeZone} />)}
@@ -95,6 +110,25 @@ const PlatformContests = ({ platformKey, pageTitle, metaDescription, h1, subtitl
                                 </div>
                             </div>
                         )}
+                        {/* Internal Links for SEO Crawling */}
+                        <div className="mt-12 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 p-6 sm:p-8">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                                <LinkIcon className="w-5 h-5 mr-2 text-blue-500" />
+                                Explore Other Platforms
+                            </h3>
+                            <div className="flex flex-wrap gap-4">
+                                {platformKey.toLowerCase() !== 'leetcode' && (
+                                    <Link to="/leetcode-contests" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">LeetCode Contests</Link>
+                                )}
+                                {platformKey.toLowerCase() !== 'codeforces' && (
+                                    <Link to="/codeforces-contests" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Codeforces Contests</Link>
+                                )}
+                                {platformKey.toLowerCase() !== 'codechef' && (
+                                    <Link to="/codechef-contests" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">CodeChef Contests</Link>
+                                )}
+                                <Link to="/best-coding-contests" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Compare All Platforms</Link>
+                            </div>
+                        </div>
                     </>
                 )}
             </main>
