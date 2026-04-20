@@ -6,9 +6,9 @@ import QuoteSubmitModal from '../modals/QuoteSubmitModal';
 
 const QuoteCard = () => {
     const { API_URL } = useContext(AuthContext);
-    const [quote, setQuote] = useState({ 
-        text: "Code yaad mat karo, logic samjho.", 
-        author: "Abhishek Anand" 
+    const [quote, setQuote] = useState({
+        text: "Code yaad mat karo, logic samjho.",
+        author: "Abhishek Anand"
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -32,7 +32,7 @@ const QuoteCard = () => {
                 {/* Decorative Background Elements */}
                 <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
                 <div className="absolute left-0 bottom-0 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
-                
+
                 <div className="flex items-start sm:items-center relative z-10 w-full flex-col sm:flex-row gap-4">
                     <div className="flex items-start sm:items-center w-full">
                         <div className="bg-white/10 p-3 rounded-xl mr-4 sm:mr-5 backdrop-blur-sm shadow-inner group-hover:scale-110 transition-transform duration-300">
@@ -50,7 +50,7 @@ const QuoteCard = () => {
                     </div>
 
                     {/* Submit Quote Button */}
-                    <button 
+                    <button
                         onClick={() => setIsModalOpen(true)}
                         className="flex-shrink-0 self-start sm:self-center bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all border border-white/20 shadow-sm whitespace-nowrap"
                     >
@@ -60,9 +60,9 @@ const QuoteCard = () => {
                 </div>
             </div>
 
-            <QuoteSubmitModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+            <QuoteSubmitModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
             />
         </>
     );

@@ -12,7 +12,7 @@ const HowToNeverMissContests = () => {
                 <title>How to Never Miss a Coding Contest Again | Free Tools & Guide</title>
                 <meta name="description" content="Tired of missing LeetCode, Codeforces, and CodeChef contests? Learn how to automate your contest tracking and set up push notifications right to your devices." />
             </Helmet>
-            
+
             <Header />
 
             <main className="container mx-auto px-4 sm:px-6 py-12 max-w-4xl">
@@ -29,12 +29,12 @@ const HowToNeverMissContests = () => {
 
                     <div className="prose dark:prose-invert prose-lg max-w-none text-gray-700 dark:text-slate-300">
                         <p>
-                            We've all been there. You plan to participate in a Codeforces Div 2 round or a LeetCode weekly challenge, but you get busy with work, study, or life. Next thing you know, you check the site and the contest ended an hour ago. 
+                            We've all been there. You plan to participate in a Codeforces Div 2 round or a LeetCode weekly challenge, but you get busy with work, study, or life. Next thing you know, you check the site and the contest ended an hour ago.
                         </p>
                         <p>
                             Missing contests hinders your rating growth and slows your competitive programming journey. Here is exactly how you can ensure you never miss a contest again.
                         </p>
-                        
+
                         <div className="my-10 space-y-6">
                             {/* Step 1 */}
                             <div className="flex bg-gray-50 dark:bg-slate-900/50 p-6 rounded-xl border border-gray-200 dark:border-slate-700">
@@ -97,7 +97,7 @@ const HowToNeverMissContests = () => {
                     </div>
                 </article>
             </main>
-            
+
             <Footer />
         </div>
     );

@@ -117,8 +117,8 @@ const Login = () => {
                     {[...Array(6)].map((_, i) => {
                         const CpIcon = cpIcons[i % cpIcons.length];
                         return (
-                            <div 
-                                key={i} 
+                            <div
+                                key={i}
                                 className="absolute bottom-0 animate-float-up flex items-center drop-shadow-2xl bg-white/5 rounded-full px-4 py-2 border border-white/10 backdrop-blur-sm"
                                 style={{
                                     left: `${15 + (i * 12)}%`,
@@ -133,7 +133,7 @@ const Login = () => {
                                         <CheckCircle2 className="w-3 h-3 text-white" />
                                     </div>
                                 </div>
-                                
+
                                 {/* Animated sending line */}
                                 <div className="mx-3 w-8 h-[2px] bg-gradient-to-r from-blue-400/30 to-blue-200/80 overflow-hidden relative">
                                     <div className="absolute top-0 left-0 h-full w-2 bg-white animate-pulse shadow-[0_0_8px_white]"></div>
@@ -231,8 +231,8 @@ const Login = () => {
                                 placeholder="Enter your password"
                             />
                         </div>
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             disabled={isLoading}
                             className={`w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center shadow-lg shadow-blue-600/30 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >

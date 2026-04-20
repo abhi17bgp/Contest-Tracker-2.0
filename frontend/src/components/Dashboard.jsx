@@ -14,7 +14,7 @@ import PushPromptModal from './dashboard/PushPromptModal';
 
 const Dashboard = () => {
     const { API_URL, user } = useContext(AuthContext);
-    
+
     // Extracted Contests Logic
     const {
         allContests, activeContests, upcomingContests, endedContests,
@@ -24,7 +24,7 @@ const Dashboard = () => {
     const [showEnded, setShowEnded] = useState(false);
     const [isPushEnabled, setIsPushEnabled] = useState(false);
     const [showPushPrompt, setShowPushPrompt] = useState(false);
-    
+
     const prevIsVerifiedRef = useRef(user?.isVerified);
     const promptShownRef = useRef(false);
 
@@ -77,7 +77,7 @@ const Dashboard = () => {
 
         try {
             const registration = await navigator.serviceWorker.ready;
-            
+
             if (isPushEnabled) {
                 const subscription = await registration.pushManager.getSubscription();
                 if (subscription) {
@@ -115,8 +115,8 @@ const Dashboard = () => {
                     });
 
                     const token = localStorage.getItem('token');
-                    await axios.post(`${API_URL}/auth/push-subscribe`, { 
-                        subscription: subscription.toJSON() 
+                    await axios.post(`${API_URL}/auth/push-subscribe`, {
+                        subscription: subscription.toJSON()
                     }, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
@@ -154,22 +154,22 @@ const Dashboard = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-12 transition-colors duration-200">
             <Header />
 
-            <PushPromptModal 
-                showPushPrompt={showPushPrompt} 
-                setShowPushPrompt={setShowPushPrompt} 
-                isBrave={isBrave} 
-                handlePushToggle={handlePushToggle} 
+            <PushPromptModal
+                showPushPrompt={showPushPrompt}
+                setShowPushPrompt={setShowPushPrompt}
+                isBrave={isBrave}
+                handlePushToggle={handlePushToggle}
             />
 
             <main className="container mx-auto px-3 sm:px-4 py-5 sm:py-8">
                 <QuoteCard />
 
-                <NotificationBanner 
-                    user={user} 
-                    isPushEnabled={isPushEnabled} 
-                    handlePushToggle={handlePushToggle} 
-                    isBrave={isBrave} 
-                    alertText={alertText} 
+                <NotificationBanner
+                    user={user}
+                    isPushEnabled={isPushEnabled}
+                    handlePushToggle={handlePushToggle}
+                    isBrave={isBrave}
+                    alertText={alertText}
                 />
 
                 {/* Today's Active Contests */}

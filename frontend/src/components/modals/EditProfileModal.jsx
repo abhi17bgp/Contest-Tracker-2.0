@@ -6,9 +6,9 @@ import { AuthContext } from '../../context/AuthContext';
 
 const EditProfileModal = ({ isOpen, onClose }) => {
   const { user, setUser, API_URL } = useContext(AuthContext);
-  const [profileData, setProfileData] = useState({ 
-    name: user?.name || '', 
-    bio: user?.bio || '' 
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    bio: user?.bio || ''
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -27,7 +27,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
       const res = await axios.put(`${API_URL}/auth/profile`, profileData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       if (res.data.success) {
         toast.success("Profile updated successfully!");
         setUser(res.data.user);
@@ -52,8 +52,8 @@ const EditProfileModal = ({ isOpen, onClose }) => {
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</h3>
               <p className="text-gray-500 dark:text-slate-400 text-sm">Personalize your public profile</p>
             </div>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-white transition-all"
             >
               <X className="w-6 h-6" />
@@ -68,7 +68,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 dark:text-slate-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                 </div>
                 <input
                   type="email"
@@ -89,7 +89,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                 <input
                   type="text"
                   value={profileData.name}
-                  onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                   required
                   className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all font-medium text-gray-900 dark:text-white"
                   placeholder="Your name"
@@ -108,7 +108,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                 </div>
                 <textarea
                   value={profileData.bio}
-                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                  onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                   rows="4"
                   className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none font-medium text-gray-900 dark:text-white"
                   placeholder="Tell the community a bit about yourself..."

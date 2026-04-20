@@ -21,7 +21,7 @@ const QuoteSubmitModal = ({ isOpen, onClose }) => {
       await axios.post(`${API_URL}/quotes`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       toast.success("Quote submitted! Waiting for admin approval.");
       setFormData({ text: '', author: '' });
       onClose();
@@ -46,8 +46,8 @@ const QuoteSubmitModal = ({ isOpen, onClose }) => {
               </h3>
               <p className="text-gray-500 dark:text-slate-400 text-sm mt-1">Found something inspiring? Share it!</p>
             </div>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-white transition-all"
             >
               <X className="w-5 h-5" />
@@ -59,7 +59,7 @@ const QuoteSubmitModal = ({ isOpen, onClose }) => {
               <label className="block text-gray-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider mb-2 ml-1">Quote Text</label>
               <textarea
                 value={formData.text}
-                onChange={(e) => setFormData({...formData, text: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, text: e.target.value })}
                 required
                 maxLength="300"
                 rows="3"
@@ -77,7 +77,7 @@ const QuoteSubmitModal = ({ isOpen, onClose }) => {
                 <input
                   type="text"
                   value={formData.author}
-                  onChange={(e) => setFormData({...formData, author: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                   required
                   maxLength="50"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700 rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-900 dark:text-white text-sm"

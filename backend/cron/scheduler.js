@@ -31,9 +31,10 @@ const fetchAndSyncDailyContests = async () => {
     try {
         console.log('[CRON] Starting Daily Sync of Contests...');
 
-        // 1. Wipe previous day contests from MongoDB
-        await Contest.deleteMany({});
-        console.log('[CRON] Wiped previous contests from database.');
+        // 1. Remove outdated contests (older than 2 days) to prevent DB bloat
+        const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+        await Contest.deleteMany({ startTime: { $lt: twoDaysAgo } });
+        console.log('[CRON] Cleaned up outdated contests.');
 
         // 2. Fetch fresh contests starting today
         const now = new Date();
@@ -64,20 +65,22 @@ const fetchAndSyncDailyContests = async () => {
             return isSupportedPlatform && !containsExcludedKeyword;
         });
 
-        // 3. Deduplicate and Bulk insert into DB
+        // 3. Deduplicate and Bulk insert/update into DB
         const contestMap = new Map();
 
         filteredContests.forEach(c => {
             const id = c.id.toString();
             if (!contestMap.has(id)) {
+                const hostKey = Object.keys(PLATFORMS).find(p => c.host.includes(p));
+                const platformName = hostKey ? PLATFORMS[hostKey] : c.host;
+                
                 contestMap.set(id, {
                     contestId: id,
                     name: c.event,
-                    platform: Object.keys(PLATFORMS).find(p => c.host.includes(p)) || c.host,
+                    platform: platformName,
                     startTime: c.start.endsWith('Z') ? c.start : `${c.start}Z`,
                     duration: c.duration,
-                    url: c.href,
-                    notified: false
+                    url: c.href
                 });
             }
         });
@@ -85,10 +88,31 @@ const fetchAndSyncDailyContests = async () => {
         const mappedContests = Array.from(contestMap.values());
 
         if (mappedContests.length > 0) {
-            await Contest.insertMany(mappedContests, { ordered: false });
+            const operations = mappedContests.map(c => ({
+                updateOne: {
+                    filter: { contestId: c.contestId },
+                    update: { 
+                        $set: {
+                            name: c.name,
+                            platform: c.platform,
+                            startTime: c.startTime,
+                            duration: c.duration,
+                            url: c.url
+                        },
+                        $setOnInsert: {
+                            notified: false,
+                            pushNotified: false,
+                            finalPushNotified: false
+                        }
+                    },
+                    upsert: true
+                }
+            }));
+            
+            await Contest.bulkWrite(operations);
         }
 
-        console.log(`[CRON] Inserted ${mappedContests.length} unique contests for the next 14 days.`);
+        console.log(`[CRON] Processed ${mappedContests.length} unique contests for the next 14 days.`);
     } catch (error) {
         console.error('[CRON] Error during daily sync:', error.response?.data || error.message);
     }
@@ -223,8 +247,11 @@ const checkAndSendReminders = async () => {
 };
 
 const initScheduler = () => {
-    // Run Daily Sync at exactly midnight server time (00:00)
-    cron.schedule('0 0 * * *', async () => {
+    // Run Sync on initialization to catch up immediately
+    fetchAndSyncDailyContests();
+
+    // Run Sync every 2 hours to get corrected times and new contests
+    cron.schedule('0 */2 * * *', async () => {
         await fetchAndSyncDailyContests();
     });
 

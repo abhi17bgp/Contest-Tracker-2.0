@@ -32,7 +32,7 @@ const Header = () => {
           <Trophy className="w-9 h-9 sm:w-11 sm:h-11 mr-2 text-yellow-300 flex-shrink-0" />
           <h1 className="text-lg sm:text-2xl font-bold tracking-tight">Contest Tracker</h1>
         </div>
-        
+
         {user && (
           <>
             {/* Desktop: Theme Toggle & User Dropdown */}
@@ -64,7 +64,7 @@ const Header = () => {
                       <div className="px-4 py-3 bg-gray-50 dark:bg-slate-900/50 border-b border-gray-100 dark:border-slate-700 mb-1">
                         <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Account Settings</p>
                       </div>
-                      
+
                       <button
                         onClick={() => {
                           setIsEditModalOpen(true);
