@@ -132,17 +132,22 @@ export default function Contests({ token }) {
 
     const openResetModal = (c) => {
         setResetTarget(c);
-        setResetFlags({ notified: false, pushNotified: false, finalPushNotified: false });
+        setResetFlags({ 
+            notified: c.notified || false, 
+            pushNotified: c.pushNotified || false, 
+            finalPushNotified: c.finalPushNotified || false 
+        });
     };
 
     const handleResetFlags = async () => {
         if (!resetTarget) return;
         setResetting(true);
         try {
-            const patch = {};
-            if (resetFlags.notified)          patch.notified          = false;
-            if (resetFlags.pushNotified)      patch.pushNotified      = false;
-            if (resetFlags.finalPushNotified) patch.finalPushNotified = false;
+            const patch = {
+                notified: resetFlags.notified,
+                pushNotified: resetFlags.pushNotified,
+                finalPushNotified: resetFlags.finalPushNotified
+            };
             const res = await axios.put(`${API}/admin/contests/${resetTarget._id}`,
                 { ...resetTarget, ...patch },
                 authHeader(token));
@@ -283,7 +288,7 @@ export default function Contests({ token }) {
                                                     onClick={() => openEdit(c)}>✏️ Edit</button>
                                                 <button className="btn btn-warn" style={{ fontSize:11, padding:'5px 10px' }}
                                                     onClick={() => openResetModal(c)}
-                                                    title="Reset notification flags">↺ Reset</button>
+                                                    title="Manage notification flags">⚙️ Flags</button>
                                                 <button className="btn btn-danger" style={{ fontSize:11, padding:'5px 10px' }}
                                                     onClick={() => setToDelete(c)}>🗑</button>
                                             </div>
@@ -369,9 +374,9 @@ export default function Contests({ token }) {
             {resetTarget && (
                 <div className="modal-overlay" onClick={() => setResetTarget(null)}>
                     <div className="modal modal-anim" style={{ maxWidth: 400 }} onClick={e => e.stopPropagation()}>
-                        <div className="modal-title">↺ Reset Notification Flags</div>
+                        <div className="modal-title">⚙️ Manage Notification Flags</div>
                         <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-                            Choose which flags to reset for:
+                            Toggle flags on or off for:
                             <strong style={{ color: 'var(--text)', display: 'block', marginTop: 4 }}>{resetTarget.name}</strong>
                         </div>
 
@@ -393,8 +398,8 @@ export default function Contests({ token }) {
                                     onChange={() => setResetFlags(prev => ({ ...prev, [key]: !prev[key] }))}
                                     style={{ width: 16, height: 16, accentColor: color, cursor: 'pointer' }} />
                                 {label}
-                                {resetTarget[key] && (
-                                    <span className="badge badge-success" style={{ marginLeft: 'auto', fontSize: 10 }}>currently sent</span>
+                                {Boolean(resetTarget[key]) !== Boolean(resetFlags[key]) && (
+                                    <span className="badge" style={{ marginLeft: 'auto', fontSize: 10, background: 'rgba(255,255,255,0.1)' }}>changed</span>
                                 )}
                             </label>
                         ))}
@@ -402,11 +407,11 @@ export default function Contests({ token }) {
                         <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
                             <button className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }}
                                 onClick={() => setResetTarget(null)}>Cancel</button>
-                            <button className="btn btn-warn" style={{ flex: 1, justifyContent: 'center' }}
-                                onClick={handleResetFlags} disabled={resetting || !Object.values(resetFlags).some(Boolean)}>
+                            <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}
+                                onClick={handleResetFlags} disabled={resetting}>
                                 {resetting
                                     ? <div className="spinner" style={{ width: 14, height: 14 }} />
-                                    : `↺ Reset ${Object.values(resetFlags).filter(Boolean).length} flag(s)`}
+                                    : `💾 Save Flags`}
                             </button>
                         </div>
                     </div>
